@@ -1,0 +1,349 @@
+{% extends "base.html" %}
+{% block title %}Login — ScripTradeX{% endblock %}
+
+{% block content %}
+<style>
+  body {
+    background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%) !important;
+    background-attachment: fixed !important;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 70% 60% at 15% 50%, rgba(79,70,229,0.2) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 70% at 85% 30%, rgba(14,165,233,0.15) 0%, transparent 60%),
+      radial-gradient(ellipse 40% 50% at 50% 85%, rgba(124,58,237,0.15) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+    animation: loginMesh 8s ease-in-out infinite alternate;
+  }
+
+  @keyframes loginMesh {
+    0%   { opacity: 0.6; }
+    100% { opacity: 1; }
+  }
+
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: radial-gradient(circle, rgba(255,255,255,0.06) 1px, transparent 1px);
+    background-size: 36px 36px;
+    mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black, transparent);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .login-wrap {
+    position: relative;
+    z-index: 10;
+    width: 100%;
+    min-height: calc(100vh - 62px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+  }
+
+  main.container {
+    padding: 0 !important;
+    max-width: 100% !important;
+  }
+</style>
+
+<div class="login-wrap">
+  <div style="width:100%;max-width:500px;">
+
+    <!-- Logo & tagline -->
+    <div style="text-align:center;margin-bottom:36px;">
+      <div style="display:inline-flex;align-items:center;justify-content:center;
+                  width:56px;height:56px;border-radius:16px;margin-bottom:14px;
+                  background:linear-gradient(135deg,#4f46e5,#7c3aed);
+                  box-shadow:0 8px 24px rgba(79,70,229,0.35);">
+        <span style="font-size:26px;">⬡</span>
+      </div>
+      <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:1.6rem;
+                  letter-spacing:-0.3px;
+                  background:linear-gradient(135deg,#4f46e5,#7c3aed);
+                  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+                  background-clip:text;">
+        ScripTradeX
+      </div>
+      <div style="font-family:'DM Sans',sans-serif;font-size:13px;
+                  color:rgba(255,255,255,0.5);margin-top:6px;font-weight:400;
+                  letter-spacing:0.1px;">
+        India's B2B Duty Credit Scrip Marketplace
+      </div>
+    </div>
+
+    <!-- Role toggle -->
+    <div style="display:flex;background:rgba(255,255,255,0.1);border:1px solid rgba(196,181,253,0.4);
+                border-radius:14px;padding:5px;margin-bottom:24px;gap:5px;
+                backdrop-filter:blur(8px);">
+      <button onclick="switchRole('seller')" id="tab-seller"
+        style="flex:1;padding:11px;border:none;border-radius:10px;font-size:13px;
+               font-weight:600;cursor:pointer;transition:all 0.25s;
+               background:linear-gradient(135deg,#4f46e5,#7c3aed);
+               color:white;font-family:'DM Sans',sans-serif;
+               letter-spacing:0.1px;
+               box-shadow:0 4px 12px rgba(79,70,229,0.3);">
+        🏭 Seller — Exporter
+      </button>
+      <button onclick="switchRole('buyer')" id="tab-buyer"
+        style="flex:1;padding:11px;border:none;border-radius:10px;font-size:13px;
+               font-weight:600;cursor:pointer;transition:all 0.25s;
+               background:transparent;color:rgba(255,255,255,0.5);
+               font-family:'DM Sans',sans-serif;letter-spacing:0.1px;">
+        🏢 Buyer — Importer
+      </button>
+    </div>
+
+    <!-- Seller Panel -->
+    <div id="panel-seller">
+      <div style="background:rgba(255,255,255,0.92);border:1px solid #c4b5fd;
+                  border-radius:18px;padding:32px;
+                  box-shadow:0 8px 32px rgba(79,70,229,0.2);
+                  backdrop-filter:blur(12px);">
+
+        <div style="height:3px;background:linear-gradient(135deg,#4f46e5,#7c3aed);
+                    border-radius:4px;margin-bottom:24px;"></div>
+
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
+          <div style="width:42px;height:42px;
+                      background:linear-gradient(135deg,#ede9fe,#ddd6fe);
+                      border-radius:12px;border:1px solid #c4b5fd;
+                      display:flex;align-items:center;justify-content:center;font-size:20px;">
+            🏭
+          </div>
+          <div>
+            <div style="font-family:'DM Sans',sans-serif;font-weight:700;
+                        font-size:15px;color:#1e1b4b;letter-spacing:0px;">
+              Seller Login
+            </div>
+            <div style="font-family:'DM Sans',sans-serif;font-size:12px;
+                        color:#6b7280;margin-top:2px;font-weight:400;">
+              Exporter with government-issued duty credit scrips
+            </div>
+          </div>
+        </div>
+
+        <form method="POST" action="/auth/login">
+          <input type="hidden" name="uid" id="sellerUid">
+
+          <label style="font-family:'DM Sans',sans-serif;font-size:12.5px;
+                        font-weight:600;color:#4338ca;display:block;
+                        margin-bottom:6px;letter-spacing:0.1px;">
+            Select your company
+          </label>
+          <select id="sellerSelect" class="form-select" style="margin-bottom:16px;"
+            onchange="document.getElementById('sellerUid').value=this.value">
+            <option value="">— Choose your company —</option>
+            {% for seller in sellers %}
+            <option value="{{ seller['uid'] }}">{{ seller['company'] }}</option>
+            {% endfor %}
+          </select>
+
+          <label style="font-family:'DM Sans',sans-serif;font-size:12.5px;
+                        font-weight:600;color:#4338ca;display:block;
+                        margin-bottom:6px;letter-spacing:0.1px;">
+            Password
+          </label>
+          <div style="position:relative;margin-bottom:20px;">
+            <input type="password" id="sellerPassword" class="form-control"
+              placeholder="Enter password" style="padding-right:42px;">
+            <span onclick="togglePwd('sellerPassword',this)"
+              style="position:absolute;right:13px;top:50%;transform:translateY(-50%);
+                     cursor:pointer;font-size:15px;color:#9ca3af;user-select:none;">👁</span>
+          </div>
+
+          <div id="sellerPwdError"
+            style="display:none;background:#fee2e2;color:#991b1b;
+                   border:1px solid #fca5a5;border-radius:8px;padding:9px 13px;
+                   font-size:12.5px;margin-bottom:14px;
+                   font-family:'DM Sans',sans-serif;font-weight:400;">
+            ❌ Incorrect password. Hint: try <strong>demo123</strong>
+          </div>
+
+          <button type="button" class="btn btn-dark w-100"
+            onclick="checkPassword('seller')"
+            style="padding:11px;font-size:13.5px;font-weight:600;
+                   font-family:'DM Sans',sans-serif;letter-spacing:0.1px;">
+            Enter as Seller →
+          </button>
+        </form>
+
+        <div style="margin-top:16px;padding:10px 14px;background:#f5f3ff;
+                    border-radius:8px;border:1px solid #ddd6fe;
+                    font-size:12px;color:#6d28d9;font-family:'DM Sans',sans-serif;
+                    font-weight:400;line-height:1.6;">
+          💡 List your scrips and receive buyer enquiries through our secure platform
+        </div>
+      </div>
+    </div>
+
+    <!-- Buyer Panel -->
+    <div id="panel-buyer" style="display:none;">
+      <div style="background:rgba(255,255,255,0.92);border:1px solid #6ee7b7;
+                  border-radius:18px;padding:32px;
+                  box-shadow:0 8px 32px rgba(16,185,129,0.2);
+                  backdrop-filter:blur(12px);">
+
+        <div style="height:3px;background:linear-gradient(135deg,#10b981,#059669);
+                    border-radius:4px;margin-bottom:24px;"></div>
+
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
+          <div style="width:42px;height:42px;
+                      background:linear-gradient(135deg,#d1fae5,#a7f3d0);
+                      border-radius:12px;border:1px solid #6ee7b7;
+                      display:flex;align-items:center;justify-content:center;font-size:20px;">
+            🏢
+          </div>
+          <div>
+            <div style="font-family:'DM Sans',sans-serif;font-weight:700;
+                        font-size:15px;color:#1e1b4b;letter-spacing:0px;">
+              Buyer Login
+            </div>
+            <div style="font-family:'DM Sans',sans-serif;font-size:12px;
+                        color:#6b7280;margin-top:2px;font-weight:400;">
+              Importer seeking duty credit scrips at a discount
+            </div>
+          </div>
+        </div>
+
+        <form method="POST" action="/auth/login">
+          <input type="hidden" name="uid" id="buyerUid">
+
+          <label style="font-family:'DM Sans',sans-serif;font-size:12.5px;
+                        font-weight:600;color:#059669;display:block;
+                        margin-bottom:6px;letter-spacing:0.1px;">
+            Select your company
+          </label>
+          <select id="buyerSelect" class="form-select"
+            style="margin-bottom:16px;border-color:#6ee7b7;"
+            onchange="document.getElementById('buyerUid').value=this.value">
+            <option value="">— Choose your company —</option>
+            {% for buyer in buyers %}
+            <option value="{{ buyer['uid'] }}">{{ buyer['company'] }}</option>
+            {% endfor %}
+          </select>
+
+          <label style="font-family:'DM Sans',sans-serif;font-size:12.5px;
+                        font-weight:600;color:#059669;display:block;
+                        margin-bottom:6px;letter-spacing:0.1px;">
+            Password
+          </label>
+          <div style="position:relative;margin-bottom:20px;">
+            <input type="password" id="buyerPassword" class="form-control"
+              placeholder="Enter password"
+              style="padding-right:42px;border-color:#6ee7b7;">
+            <span onclick="togglePwd('buyerPassword',this)"
+              style="position:absolute;right:13px;top:50%;transform:translateY(-50%);
+                     cursor:pointer;font-size:15px;color:#9ca3af;user-select:none;">👁</span>
+          </div>
+
+          <div id="buyerPwdError"
+            style="display:none;background:#d1fae5;color:#065f46;
+                   border:1px solid #6ee7b7;border-radius:8px;padding:9px 13px;
+                   font-size:12.5px;margin-bottom:14px;
+                   font-family:'DM Sans',sans-serif;font-weight:400;">
+            ❌ Incorrect password. Hint: try <strong>demo123</strong>
+          </div>
+
+          <button type="button" class="btn w-100"
+            onclick="checkPassword('buyer')"
+            style="padding:11px;font-size:13.5px;font-weight:600;
+                   font-family:'DM Sans',sans-serif;letter-spacing:0.1px;
+                   background:linear-gradient(135deg,#10b981,#059669);
+                   color:white;border:none;border-radius:8px;
+                   box-shadow:0 4px 12px rgba(16,185,129,0.3);
+                   transition:all 0.2s;"
+            onmouseover="this.style.transform='translateY(-1px)';this.style.boxShadow='0 6px 16px rgba(16,185,129,0.4)'"
+            onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 4px 12px rgba(16,185,129,0.3)'">
+            Enter as Buyer →
+          </button>
+        </form>
+
+        <div style="margin-top:16px;padding:10px 14px;background:#d1fae5;
+                    border-radius:8px;border:1px solid #6ee7b7;
+                    font-size:12px;color:#065f46;font-family:'DM Sans',sans-serif;
+                    font-weight:400;line-height:1.6;">
+          💡 Find scrips below face value and save on your import duties instantly
+        </div>
+      </div>
+    </div>
+
+    <p style="text-align:center;font-size:12px;color:rgba(255,255,255,0.3);
+              margin-top:20px;font-family:'DM Sans',sans-serif;
+              font-weight:400;letter-spacing:0.1px;">
+      🔒 Demo platform · Password is <strong style="color:rgba(255,255,255,0.5);">demo123</strong> · All data is seeded
+    </p>
+
+  </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+  const DEMO_PASSWORD = 'demo123';
+
+  function checkPassword(role) {
+    const pwd    = document.getElementById(role + 'Password').value;
+    const uid    = document.getElementById(role + 'Uid').value;
+    const errDiv = document.getElementById(role + 'PwdError');
+
+    if (!uid) {
+      alert('Please select your company first.');
+      return;
+    }
+
+    if (pwd !== DEMO_PASSWORD) {
+      errDiv.style.display = 'block';
+      document.getElementById(role + 'Password').style.borderColor = '#ef4444';
+      return;
+    }
+
+    errDiv.style.display = 'none';
+    document.getElementById(role + 'Password').closest('form').submit();
+  }
+
+  function togglePwd(inputId, icon) {
+    const input = document.getElementById(inputId);
+    if (input.type === 'password') {
+      input.type = 'text';
+      icon.innerText = '🙈';
+    } else {
+      input.type = 'password';
+      icon.innerText = '👁';
+    }
+  }
+
+  function switchRole(role) {
+    const isSeller = role === 'seller';
+    document.getElementById('panel-seller').style.display = isSeller ? 'block' : 'none';
+    document.getElementById('panel-buyer').style.display  = isSeller ? 'none'  : 'block';
+
+    const sellerBtn = document.getElementById('tab-seller');
+    const buyerBtn  = document.getElementById('tab-buyer');
+
+    if (isSeller) {
+      sellerBtn.style.background = 'linear-gradient(135deg,#4f46e5,#7c3aed)';
+      sellerBtn.style.color      = 'white';
+      sellerBtn.style.boxShadow  = '0 4px 12px rgba(79,70,229,0.3)';
+      buyerBtn.style.background  = 'transparent';
+      buyerBtn.style.color       = 'rgba(255,255,255,0.5)';
+      buyerBtn.style.boxShadow   = 'none';
+    } else {
+      buyerBtn.style.background  = 'linear-gradient(135deg,#10b981,#059669)';
+      buyerBtn.style.color       = 'white';
+      buyerBtn.style.boxShadow   = '0 4px 12px rgba(16,185,129,0.3)';
+      sellerBtn.style.background = 'transparent';
+      sellerBtn.style.color      = 'rgba(255,255,255,0.5)';
+      sellerBtn.style.boxShadow  = 'none';
+    }
+  }
+</script>
+{% endblock %}

@@ -1,0 +1,165 @@
+{% extends "base.html" %}
+{% block title %}Payment — ScripTradeX{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-5">
+
+    <!-- Order Summary -->
+    <div class="card mb-4">
+      <div class="card-header">Order Summary</div>
+      <div class="card-body" style="padding:20px 22px;">
+        <div style="display:flex;justify-content:space-between;
+                    margin-bottom:10px;font-size:13.5px;">
+          <span style="color:#8898aa;">Scrip ID</span>
+          <span style="font-weight:600;color:#0a2540;">{{ txn.scripId }}</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;
+                    margin-bottom:10px;font-size:13.5px;">
+          <span style="color:#8898aa;">Face Value</span>
+          <span style="color:#425466;">₹{{ "{:,.0f}".format(txn.faceValue) }}</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;
+                    margin-bottom:14px;font-size:13.5px;">
+          <span style="color:#8898aa;">Platform Commission (1%)</span>
+          <span style="color:#df1b41;">− ₹{{ "{:,.0f}".format(txn.commission) }}</span>
+        </div>
+        <div style="border-top:1px solid #e3e8ef;padding-top:14px;
+                    display:flex;justify-content:space-between;align-items:center;">
+          <span style="font-weight:700;font-size:14px;color:#0a2540;">Total Due</span>
+          <span style="font-family:'Syne',sans-serif;font-weight:800;
+                       font-size:1.3rem;color:#0a2540;">
+            ₹{{ "{:,.0f}".format(txn.agreedPrice) }}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Payment Form -->
+    <div class="card mb-4">
+      <div class="card-header d-flex align-items-center justify-content-between">
+        <span>Secure Payment</span>
+        <span style="font-size:11.5px;color:#1a9e5c;font-weight:600;">🔒 SSL Secured</span>
+      </div>
+      <div class="card-body" style="padding:22px;">
+
+        <ul class="nav nav-pills mb-4" style="gap:6px;">
+          <li class="nav-item">
+            <button type="button" class="nav-link active" onclick="showTab('card', this)">
+              Card
+            </button>
+          </li>
+          <li class="nav-item">
+            <button type="button" class="nav-link" onclick="showTab('upi', this)">UPI</button>
+          </li>
+          <li class="nav-item">
+            <button type="button" class="nav-link" onclick="showTab('netbanking', this)">
+              Net Banking
+            </button>
+          </li>
+        </ul>
+
+        <form method="POST" action="/escrow/payment/{{ txn.txnId }}/process" id="paymentForm">
+
+          <!-- Card Tab -->
+          <div id="tab-card">
+            <div style="margin-bottom:16px;">
+              <label class="form-label">Cardholder Name</label>
+              <input type="text" name="name" class="form-control"
+                     placeholder="As printed on card" required>
+            </div>
+            <div style="margin-bottom:16px;">
+              <label class="form-label">Card Number</label>
+              <input type="text" name="card_number" id="cardNumber" class="form-control"
+                     placeholder="1234 5678 9012 3456" maxlength="19" required>
+            </div>
+            <div class="row g-3" style="margin-bottom:16px;">
+              <div class="col-6">
+                <label class="form-label">Expiry</label>
+                <input type="text" name="expiry" class="form-control"
+                       placeholder="MM/YY" maxlength="5" required>
+              </div>
+              <div class="col-6">
+                <label class="form-label">CVV</label>
+                <input type="password" name="cvv" class="form-control"
+                       placeholder="•••" maxlength="3" required>
+              </div>
+            </div>
+          </div>
+
+          <!-- UPI Tab -->
+          <div id="tab-upi" style="display:none;">
+            <div style="margin-bottom:16px;">
+              <label class="form-label">UPI ID</label>
+              <input type="text" name="upi_id" class="form-control"
+                     placeholder="yourname@upi">
+            </div>
+            <div style="text-align:center;padding:16px 0;">
+              <div style="width:110px;height:110px;background:#f6f9fc;
+                          border:1px solid #e3e8ef;border-radius:10px;
+                          display:inline-flex;align-items:center;justify-content:center;
+                          font-size:11px;color:#8898aa;">
+                QR Code
+              </div>
+              <div style="font-size:12px;color:#8898aa;margin-top:8px;">
+                Scan with any UPI app
+              </div>
+            </div>
+          </div>
+
+          <!-- Net Banking Tab -->
+          <div id="tab-netbanking" style="display:none;">
+            <div style="margin-bottom:16px;">
+              <label class="form-label">Select Bank</label>
+              <select name="bank" class="form-select">
+                <option value="">— Select Bank —</option>
+                <option>State Bank of India</option>
+                <option>HDFC Bank</option>
+                <option>ICICI Bank</option>
+                <option>Axis Bank</option>
+                <option>Kotak Mahindra Bank</option>
+                <option>Punjab National Bank</option>
+              </select>
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-dark w-100" id="payBtn"
+            style="padding:11px;font-size:14px;font-weight:600;margin-top:6px;">
+            Pay ₹{{ "{:,.0f}".format(txn.agreedPrice) }}
+          </button>
+        </form>
+
+      </div>
+    </div>
+
+    <div style="text-align:center;">
+      <form method="POST" action="/escrow/cancel/{{ txn.txnId }}">
+        <button type="submit" class="btn btn-link">Cancel Transaction</button>
+      </form>
+    </div>
+
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  function showTab(tab, btn) {
+    ['card','upi','netbanking'].forEach(t => {
+      document.getElementById('tab-' + t).style.display = 'none';
+    });
+    document.getElementById('tab-' + tab).style.display = 'block';
+    document.querySelectorAll('.nav-link').forEach(el => el.classList.remove('active'));
+    btn.classList.add('active');
+  }
+  document.getElementById('cardNumber').addEventListener('input', function(e) {
+    let val = e.target.value.replace(/\D/g, '').substring(0, 16);
+    e.target.value = val.replace(/(.{4})/g, '$1 ').trim();
+  });
+  document.getElementById('paymentForm').addEventListener('submit', function() {
+    const btn = document.getElementById('payBtn');
+    btn.innerHTML = 'Processing...';
+    btn.disabled = true;
+  });
+</script>
+{% endblock %}

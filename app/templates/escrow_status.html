@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+{% block title %}Escrow Status — ScripTradeX{% endblock %}
+
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4 page-header">
+  <div>
+    <h4>Escrow Status</h4>
+    <div class="subtitle">{{ txn.txnId }}</div>
+  </div>
+  {% if session.role == 'seller' %}
+  <a href="/seller/dashboard" class="btn btn-outline-dark btn-sm">← Back</a>
+  {% else %}
+  <a href="/buyer/dashboard" class="btn btn-outline-dark btn-sm">← Back</a>
+  {% endif %}
+</div>
+
+<!-- Transaction Details -->
+<div class="card mb-4">
+  <div class="card-header">Transaction Details</div>
+  <div class="card-body">
+    <div class="row g-3">
+      {% set details = [
+        ('Scrip ID', txn.scripId, False),
+        ('Face Value', '₹' ~ "{:,.0f}".format(txn.faceValue), False),
+        ('Agreed Price', '₹' ~ "{:,.0f}".format(txn.agreedPrice), True),
+        ('Commission (1%)', '₹' ~ "{:,.0f}".format(txn.commission), False)
+      ] %}
+      {% for label, value, highlight in details %}
+      <div class="col-md-3">
+        <div style="font-size:11px;text-transform:uppercase;letter-spacing:0.5px;
+                    color:#8898aa;font-weight:600;margin-bottom:5px;">{{ label }}</div>
+        <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:15px;
+                    color:{% if highlight %}#1a9e5c{% else %}#0a2540{% endif %};">
+          {{ value }}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<!-- Progress Tracker -->
+<div class="card mb-4">
+  <div class="card-header">Escrow Progress</div>
+  <div class="card-body" style="padding:28px 30px;">
+    {% set stages = [
+      ('BUYER_INTERESTED', 'Buyer Locked'),
+      ('SELLER_CONFIRMED', 'Seller Confirmed'),
+      ('FUNDS_HELD', 'Payment Done'),
+      ('SETTLED', 'Settled')
+    ] %}
+    {% set order = ['BUYER_INTERESTED','SELLER_CONFIRMED','FUNDS_HELD','SETTLED'] %}
+    {% set ci = order.index(txn.escrowStatus) if txn.escrowStatus in order else 0 %}
+
+    <div style="display:flex;align-items:center;">
+      {% for key, label in stages %}
+      {% set i = loop.index0 %}
+      <div style="flex:0 0 auto;text-align:center;width:90px;">
+        <div style="width:36px;height:36px;border-radius:50%;margin:0 auto 8px;
+                    display:flex;align-items:center;justify-content:center;
+                    font-size:13px;font-weight:700;
+                    {% if i < ci %}background:#e6f9ee;color:#1a9e5c;border:2px solid #1a9e5c;
+                    {% elif i == ci %}background:#0a2540;color:white;border:2px solid #0a2540;
+                    {% else %}background:#f6f9fc;color:#8898aa;border:2px solid #e3e8ef;{% endif %}">
+          {% if i < ci %}✓{% else %}{{ i + 1 }}{% endif %}
+        </div>
+        <div style="font-size:11.5px;font-weight:{% if i == ci %}700{% else %}400{% endif %};
+                    color:{% if i == ci %}#0a2540{% elif i < ci %}#1a9e5c{% else %}#8898aa{% endif %};">
+          {{ label }}
+        </div>
+      </div>
+      {% if not loop.last %}
+      <div style="flex:1;height:2px;
+                  background:{% if i < ci %}#b2dfcc{% else %}#e3e8ef{% endif %};
+                  margin-bottom:28px;">
+      </div>
+      {% endif %}
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<!-- Actions -->
+<div class="card">
+  <div class="card-header">Actions</div>
+  <div class="card-body d-flex gap-3 flex-wrap">
+
+    {% if txn.escrowStatus == 'BUYER_INTERESTED' and session.role == 'seller' %}
+    <form method="POST" action="/escrow/seller-confirm/{{ txn.txnId }}">
+      <button class="btn btn-success">Confirm Sale</button>
+    </form>
+    {% endif %}
+
+    {% if txn.escrowStatus == 'SELLER_CONFIRMED' and session.role == 'buyer' %}
+    <a href="/escrow/payment/{{ txn.txnId }}" class="btn btn-success">Proceed to Payment</a>
+    {% endif %}
+
+    {% if txn.escrowStatus == 'FUNDS_HELD' and session.role == 'seller' %}
+    <form method="POST" action="/escrow/settle/{{ txn.txnId }}">
+      <button class="btn btn-success">Confirm Transfer & Settle</button>
+    </form>
+    {% endif %}
+
+    {% if txn.escrowStatus not in ['SETTLED', 'CANCELLED'] %}
+    <form method="POST" action="/escrow/cancel/{{ txn.txnId }}">
+      <button class="btn btn-outline-danger">Cancel Transaction</button>
+    </form>
+    {% endif %}
+
+    {% if txn.escrowStatus == 'SETTLED' %}
+    <div class="alert alert-success mb-0 w-100">
+      ✅ Transaction settled successfully. Scrip has been transferred to the buyer.
+    </div>
+    {% endif %}
+
+    {% if txn.escrowStatus == 'CANCELLED' %}
+    <div class="alert alert-secondary mb-0 w-100">
+      Transaction cancelled. Scrip has been relisted on the marketplace.
+    </div>
+    {% endif %}
+
+  </div>
+</div>
+
+{% endblock %}

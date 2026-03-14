@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+{% block title %}Marketplace — ScripTradeX{% endblock %}
+
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4 page-header">
+  <div>
+    <h4>Marketplace</h4>
+    <div class="subtitle">All active verified listings</div>
+  </div>
+  {% if session.role == 'buyer' %}
+  <a href="/buyer/dashboard" class="btn btn-outline-dark btn-sm">← My Dashboard</a>
+  {% endif %}
+</div>
+
+<!-- Filters -->
+<div class="card mb-4">
+  <div class="card-body" style="padding:18px 22px;">
+    <form method="GET" action="/marketplace/">
+      <div class="row g-3 align-items-end">
+        <div class="col-md-3">
+          <label class="form-label">Scrip Type</label>
+          <select name="type" class="form-select">
+            <option value="any" {% if scrip_type == 'any' %}selected{% endif %}>Any Type</option>
+            <option value="RoDTEP" {% if scrip_type == 'RoDTEP' %}selected{% endif %}>RoDTEP</option>
+            <option value="ROSCTL" {% if scrip_type == 'ROSCTL' %}selected{% endif %}>ROSCTL</option>
+          </select>
+        </div>
+        <div class="col-md-2">
+          <label class="form-label">Min Value (₹)</label>
+          <input type="number" name="min" class="form-control"
+                 value="{{ min_value | int if min_value else '' }}" placeholder="0">
+        </div>
+        <div class="col-md-2">
+          <label class="form-label">Max Value (₹)</label>
+          <input type="number" name="max" class="form-control"
+                 value="{{ max_value | int if max_value < 99999999 else '' }}" placeholder="Any">
+        </div>
+        <div class="col-md-2">
+          <label class="form-label">Min Days to Expiry</label>
+          <input type="number" name="days" class="form-control"
+                 value="{{ min_expiry_days if min_expiry_days else '' }}" placeholder="0">
+        </div>
+        <div class="col-md-3 d-flex gap-2">
+          <button type="submit" class="btn btn-dark">Apply Filters</button>
+          <a href="/marketplace/" class="btn btn-outline-secondary">Clear</a>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+{% if listings %}
+<div class="row g-3">
+  {% for listing in listings %}
+  <div class="col-md-6 col-lg-4">
+    <div class="card h-100">
+      <div class="card-body" style="padding:20px;">
+
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <span class="badge bg-secondary">{{ listing.type }}</span>
+          <span class="badge bg-success">{{ listing.discountRate }}% discount</span>
+        </div>
+
+        <div style="font-family:'Syne',sans-serif;font-weight:700;
+                    font-size:15px;color:#0a2540;margin-bottom:3px;">
+          {{ listing.scripId }}
+        </div>
+        <div style="font-size:12.5px;color:#8898aa;margin-bottom:18px;">
+          {{ listing.sellerCompany }}
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;
+                    gap:12px;margin-bottom:16px;">
+          <div style="background:#f6f9fc;border-radius:8px;padding:12px;text-align:center;">
+            <div style="font-size:11px;color:#8898aa;text-transform:uppercase;
+                        letter-spacing:0.5px;margin-bottom:4px;">Face Value</div>
+            <div style="font-weight:600;font-size:14px;color:#0a2540;">
+              ₹{{ "{:,.0f}".format(listing.faceValue) }}
+            </div>
+          </div>
+          <div style="background:#f0fff8;border-radius:8px;padding:12px;text-align:center;
+                      border:1px solid #b2dfcc;">
+            <div style="font-size:11px;color:#0d6e39;text-transform:uppercase;
+                        letter-spacing:0.5px;margin-bottom:4px;">Ask Price</div>
+            <div style="font-weight:700;font-size:14px;color:#0d6e39;">
+              ₹{{ "{:,.0f}".format(listing.askPrice) }}
+            </div>
+          </div>
+        </div>
+
+        <div style="font-size:12px;color:#8898aa;margin-bottom:16px;">
+          Expires <strong style="color:#425466;">{{ listing.expiryDate }}</strong>
+        </div>
+
+        {% if session.role == 'buyer' %}
+        <form method="POST" action="/escrow/initiate/{{ listing.listingId }}">
+          <button class="btn btn-dark w-100 btn-sm">Lock & Buy</button>
+        </form>
+        {% else %}
+        <button class="btn btn-outline-secondary w-100 btn-sm" disabled>
+          Login as Buyer to Purchase
+        </button>
+        {% endif %}
+
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+{% else %}
+<div style="text-align:center;padding:64px 0;">
+  <div style="font-size:32px;margin-bottom:12px;">📭</div>
+  <div style="font-family:'Syne',sans-serif;font-weight:700;
+              font-size:1.1rem;color:#0a2540;margin-bottom:6px;">
+    No listings found
+  </div>
+  <div style="font-size:13px;color:#8898aa;margin-bottom:20px;">
+    Try adjusting your filters or check back later.
+  </div>
+  <a href="/marketplace/" class="btn btn-outline-dark btn-sm">Clear Filters</a>
+</div>
+{% endif %}
+
+{% endblock %}

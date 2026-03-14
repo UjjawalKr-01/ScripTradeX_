@@ -1,0 +1,298 @@
+{% extends "base.html" %}
+{% block title %}Seller Dashboard — ScripTradeX{% endblock %}
+
+{% block content %}
+
+<!-- Header -->
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:28px;">
+  <div>
+    <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:1.4rem;
+                color:#0a2540;letter-spacing:-0.3px;">Seller Dashboard</div>
+    <div style="font-size:13px;color:#8898aa;margin-top:2px;">{{ session.company }}</div>
+  </div>
+  <div style="display:flex;gap:10px;">
+    <button class="btn btn-dark btn-sm" data-bs-toggle="modal" data-bs-target="#listScripModal"
+      style="background:#0a2540;border-color:#0a2540;">
+      + List New Scrip
+    </button>
+    <a href="/marketplace/" class="btn btn-outline-dark btn-sm">Marketplace</a>
+  </div>
+</div>
+
+<!-- Stats -->
+<!-- Stats -->
+<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:28px;">
+  <div style="background:linear-gradient(135deg,#667eea,#764ba2);border-radius:14px;
+              padding:22px 24px;color:white;">
+    <div style="font-size:2.4rem;font-weight:900;font-family:'Syne',sans-serif;
+                line-height:1;letter-spacing:-2px;text-shadow:0 2px 8px rgba(0,0,0,0.15);">
+      {{ listings | selectattr('status','equalto','active') | list | length }}
+    </div>
+    <div style="font-size:11px;opacity:0.85;margin-top:8px;text-transform:uppercase;
+                letter-spacing:1.5px;font-family:'DM Sans',sans-serif;font-weight:600;">
+      Active Listings
+    </div>
+  </div>
+  <div style="background:linear-gradient(135deg,#f093fb,#f5576c);border-radius:14px;
+              padding:22px 24px;color:white;">
+    <div style="font-size:2.4rem;font-weight:900;font-family:'Syne',sans-serif;
+                line-height:1;letter-spacing:-2px;text-shadow:0 2px 8px rgba(0,0,0,0.15);">
+      {{ deal_activity | selectattr('escrowStatus','equalto','BUYER_INTERESTED') | list | length }}
+    </div>
+    <div style="font-size:11px;opacity:0.85;margin-top:8px;text-transform:uppercase;
+                letter-spacing:1.5px;font-family:'DM Sans',sans-serif;font-weight:600;">
+      Pending Enquiries
+    </div>
+  </div>
+  <div style="background:linear-gradient(135deg,#4facfe,#00f2fe);border-radius:14px;
+              padding:22px 24px;color:white;">
+    <div style="font-size:2.4rem;font-weight:900;font-family:'Syne',sans-serif;
+                line-height:1;letter-spacing:-2px;text-shadow:0 2px 8px rgba(0,0,0,0.15);">
+      {{ deal_activity | length }}
+    </div>
+    <div style="font-size:11px;opacity:0.85;margin-top:8px;text-transform:uppercase;
+                letter-spacing:1.5px;font-family:'DM Sans',sans-serif;font-weight:600;">
+      Total Deals
+    </div>
+  </div>
+</div>
+
+<!-- Tabs -->
+<div style="display:flex;gap:4px;background:#f0f4f8;border-radius:12px;
+            padding:4px;margin-bottom:24px;">
+  <button onclick="showTab('listings')" id="tab-listings"
+    class="dash-tab active-tab">
+    📋 Listed Scrips
+  </button>
+  <button onclick="showTab('deals')" id="tab-deals"
+    class="dash-tab inactive-tab">
+    🤝 Deal Activity
+    {% set pending_count = deal_activity | selectattr('escrowStatus','equalto','BUYER_INTERESTED') | list | length %}
+    {% if pending_count > 0 %}
+    <span style="background:#f5576c;color:white;border-radius:20px;
+                 padding:1px 7px;font-size:11px;margin-left:4px;">{{ pending_count }}</span>
+    {% endif %}
+  </button>
+</div>
+
+<!-- Listed Scrips Tab -->
+<div id="panel-listings">
+  <div style="background:white;border:1px solid #e3e8ef;border-radius:14px;overflow:hidden;
+              box-shadow:0 2px 12px rgba(10,37,64,0.06);">
+    {% if listings %}
+    <table class="table table-hover mb-0">
+      <thead>
+        <tr style="background:#f8faff;">
+          <th>Scrip ID</th><th>Type</th><th>Face Value</th>
+          <th>Ask Price</th><th>Discount</th><th>Expiry</th><th>Status</th><th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for l in listings %}
+        <tr>
+          <td class="fw-bold">{{ l.scripId }}</td>
+          <td>
+            <span style="background:{% if l.type == 'RoDTEP' %}#e8f0fe{% else %}#fce4ec{% endif %};
+                         color:{% if l.type == 'RoDTEP' %}#1a56db{% else %}#c0143c{% endif %};
+                         padding:3px 10px;border-radius:20px;font-size:11.5px;font-weight:600;">
+              {{ l.type }}
+            </span>
+          </td>
+          <td>₹{{ "{:,.0f}".format(l.faceValue) }}</td>
+          <td style="color:#1a7f4b;font-weight:600;">₹{{ "{:,.0f}".format(l.askPrice) }}</td>
+          <td>
+            <span style="background:#e8f5e9;color:#1a7f4b;padding:3px 10px;
+                         border-radius:20px;font-size:11.5px;font-weight:600;">
+              {{ l.discountRate }}% off
+            </span>
+          </td>
+          <td style="color:#8898aa;font-size:13px;">{{ l.expiryDate }}</td>
+          <td>
+            {% if l.status == 'active' %}
+              <span style="background:#e8f0fe;color:#1a56db;padding:3px 10px;
+                           border-radius:20px;font-size:11.5px;font-weight:600;">Active</span>
+            {% elif l.status == 'locked' %}
+              <span style="background:#fff8e1;color:#e65100;padding:3px 10px;
+                           border-radius:20px;font-size:11.5px;font-weight:600;">Locked</span>
+            {% endif %}
+          </td>
+          <td>
+            {% if l.status == 'active' %}
+            <form method="POST" action="/seller/delist-scrip/{{ l.scripId }}">
+              <button class="btn btn-sm btn-outline-danger">Delist</button>
+            </form>
+            {% else %}
+            <span style="color:#c8d0da;">—</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <div style="padding:48px;text-align:center;">
+      <div style="font-size:36px;margin-bottom:12px;">📦</div>
+      <div style="font-family:'Syne',sans-serif;font-weight:700;color:#0a2540;margin-bottom:6px;">
+        No scrips listed yet
+      </div>
+      <div style="font-size:13px;color:#8898aa;margin-bottom:20px;">
+        Click "+ List New Scrip" to get started
+      </div>
+      <button class="btn btn-dark btn-sm" data-bs-toggle="modal" data-bs-target="#listScripModal">
+        + List New Scrip
+      </button>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Deal Activity Tab -->
+<div id="panel-deals" style="display:none;">
+  <div style="background:white;border:1px solid #e3e8ef;border-radius:14px;overflow:hidden;
+              box-shadow:0 2px 12px rgba(10,37,64,0.06);">
+    {% if deal_activity %}
+    <table class="table table-hover mb-0">
+      <thead>
+        <tr style="background:#f8faff;">
+          <th>Scrip ID</th><th>Buyer</th><th>Agreed Price</th><th>Status</th><th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for d in deal_activity %}
+        <tr>
+          <td class="fw-bold">{{ d.scripId }}</td>
+          <td style="color:#425466;">{{ d.buyerCompany }}</td>
+          <td style="font-weight:600;color:#0a2540;">₹{{ "{:,.0f}".format(d.agreedPrice) }}</td>
+          <td>
+            {% if d.escrowStatus == 'BUYER_INTERESTED' %}
+              <span style="background:#fff8e1;color:#e65100;padding:4px 12px;
+                           border-radius:20px;font-size:12px;font-weight:600;">
+                🔔 Awaiting your response
+              </span>
+            {% elif d.escrowStatus == 'SELLER_CONFIRMED' %}
+              <span style="background:#e3f2fd;color:#0d47a1;padding:4px 12px;
+                           border-radius:20px;font-size:12px;font-weight:600;">
+                ✅ Awaiting buyer payment
+              </span>
+            {% elif d.escrowStatus == 'FUNDS_HELD' %}
+              <span style="background:#e8f5e9;color:#1a7f4b;padding:4px 12px;
+                           border-radius:20px;font-size:12px;font-weight:600;">
+                💰 Ready to settle
+              </span>
+            {% elif d.escrowStatus == 'SETTLED' %}
+              <span style="background:#e8f5e9;color:#1a7f4b;padding:4px 12px;
+                           border-radius:20px;font-size:12px;font-weight:600;">
+                ✔ Deal settled
+              </span>
+            {% elif d.escrowStatus == 'CANCELLED' and d.cancelledBy == d.sellerId %}
+              <span style="background:#f0f4f8;color:#8898aa;padding:4px 12px;
+                           border-radius:20px;font-size:12px;font-weight:600;">
+                ✖ You rejected
+              </span>
+            {% elif d.escrowStatus == 'CANCELLED' %}
+              <span style="background:#f0f4f8;color:#8898aa;padding:4px 12px;
+                           border-radius:20px;font-size:12px;font-weight:600;">
+                ✖ Cancelled
+              </span>
+            {% endif %}
+          </td>
+          <td>
+            {% if d.escrowStatus == 'BUYER_INTERESTED' %}
+              <div style="display:flex;gap:8px;">
+                <form method="POST" action="/escrow/seller-confirm/{{ d.txnId }}">
+                  <button class="btn btn-sm btn-success">Confirm</button>
+                </form>
+                <form method="POST" action="/escrow/cancel/{{ d.txnId }}">
+                  <button class="btn btn-sm btn-outline-danger">Reject</button>
+                </form>
+              </div>
+            {% elif d.escrowStatus == 'FUNDS_HELD' %}
+              <form method="POST" action="/escrow/settle/{{ d.txnId }}">
+                <button class="btn btn-sm btn-success">Settle</button>
+              </form>
+            {% else %}
+              <span style="color:#c8d0da;">—</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <div style="padding:48px;text-align:center;">
+      <div style="font-size:36px;margin-bottom:12px;">🤝</div>
+      <div style="font-family:'Syne',sans-serif;font-weight:700;color:#0a2540;margin-bottom:6px;">
+        No deal activity yet
+      </div>
+      <div style="font-size:13px;color:#8898aa;">
+        Buyer enquiries will appear here once they lock your scrips.
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<!-- List Scrip Modal -->
+<div class="modal fade" id="listScripModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">List Scrip for Sale</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <form method="POST" action="/seller/list-scrip">
+        <div class="modal-body">
+          <div style="margin-bottom:16px;">
+            <label class="form-label">Select Scrip</label>
+            <select name="scrip_id" class="form-select" required>
+              <option value="">— Select Scrip —</option>
+              {% for scrip in all_scrips %}
+              {% if scrip.status == 'with_exporter' %}
+              <option value="{{ scrip.scripId }}">
+                {{ scrip.scripId }} — {{ scrip.type }} — ₹{{ "{:,.0f}".format(scrip.faceValue) }}
+              </option>
+              {% endif %}
+              {% endfor %}
+            </select>
+          </div>
+          <div>
+            <label class="form-label">Your Asking Price (₹)</label>
+            <input type="number" name="ask_price" class="form-control"
+                   placeholder="Must be less than face value" required>
+            <div class="form-text">Enter a price lower than face value to offer a discount.</div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+            Cancel
+          </button>
+          <button type="submit" class="btn btn-dark">Verify & List</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<style>
+  .dash-tab {
+    flex:1;padding:10px 16px;border:none;border-radius:10px;
+    font-size:13.5px;font-weight:600;cursor:pointer;
+    transition:all 0.2s;font-family:'DM Sans',sans-serif;
+  }
+  .active-tab   { background:#0a2540;color:white; }
+  .inactive-tab { background:transparent;color:#8898aa; }
+  .inactive-tab:hover { background:rgba(10,37,64,0.06);color:#425466; }
+</style>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+  function showTab(tab) {
+    document.getElementById('panel-listings').style.display = tab === 'listings' ? 'block' : 'none';
+    document.getElementById('panel-deals').style.display    = tab === 'deals'    ? 'block' : 'none';
+    document.getElementById('tab-listings').className = 'dash-tab ' + (tab === 'listings' ? 'active-tab' : 'inactive-tab');
+    document.getElementById('tab-deals').className    = 'dash-tab ' + (tab === 'deals'    ? 'active-tab' : 'inactive-tab');
+  }
+</script>
+{% endblock %}

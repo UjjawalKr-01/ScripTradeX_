@@ -1,0 +1,402 @@
+{% extends "base.html" %}
+{% block title %}Admin Panel — ScripTradeX{% endblock %}
+
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h4 class="fw-bold mb-0">Admin Panel</h4>
+    <span class="text-muted small">Platform Revenue & Transaction Overview</span>
+  </div>
+  <a href="/admin/logout" class="btn btn-outline-danger btn-sm">Exit Admin</a>
+</div>
+
+<!-- 6-Layer Security Status -->
+<div class="card shadow-sm mb-4">
+  <div class="card-header d-flex align-items-center justify-content-between">
+    <span>🛡️ Security Infrastructure</span>
+    <span style="font-size:12px;font-weight:600;color:#059669;
+                 background:#d1fae5;padding:4px 12px;border-radius:20px;
+                 border:1px solid #6ee7b7;">
+      ● All Systems Active
+    </span>
+  </div>
+  <div class="card-body" style="padding:24px;">
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;">
+
+      <!-- Layer 1 -->
+      <div style="background:linear-gradient(135deg,#f0f9ff,#e0f2fe);
+                  border:1px solid #bae6fd;border-radius:12px;padding:18px;
+                  position:relative;overflow:hidden;">
+        <div style="position:absolute;top:0;left:0;width:4px;height:100%;
+                    background:linear-gradient(180deg,#0ea5e9,#0284c7);
+                    border-radius:4px 0 0 4px;"></div>
+        <div style="padding-left:8px;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+            <span style="font-size:18px;">⚡</span>
+            <span style="font-family:'DM Sans',sans-serif;font-weight:700;
+                         font-size:13px;color:#0c4a6e;">Layer 1 — Rate Limiting</span>
+          </div>
+          <div style="font-size:12px;color:#0369a1;font-family:'DM Sans',sans-serif;
+                      line-height:1.6;">
+            Max <strong>10 requests/min</strong> per IP on login endpoint
+          </div>
+          <div style="margin-top:10px;display:flex;align-items:center;gap:6px;">
+            <div style="width:8px;height:8px;border-radius:50%;background:#10b981;
+                        box-shadow:0 0 6px rgba(16,185,129,0.6);
+                        animation:pulse 2s infinite;"></div>
+            <span style="font-size:11px;color:#059669;font-weight:600;">ACTIVE</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Layer 2 -->
+      <div style="background:linear-gradient(135deg,#fdf4ff,#fae8ff);
+                  border:1px solid #e9d5ff;border-radius:12px;padding:18px;
+                  position:relative;overflow:hidden;">
+        <div style="position:absolute;top:0;left:0;width:4px;height:100%;
+                    background:linear-gradient(180deg,#a855f7,#7c3aed);
+                    border-radius:4px 0 0 4px;"></div>
+        <div style="padding-left:8px;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+            <span style="font-size:18px;">🚫</span>
+            <span style="font-family:'DM Sans',sans-serif;font-weight:700;
+                         font-size:13px;color:#4a1d96;">Layer 2 — IP Blacklist</span>
+          </div>
+          <div style="font-size:12px;color:#6d28d9;font-family:'DM Sans',sans-serif;
+                      line-height:1.6;">
+            Auto-block after <strong>5 failed</strong> login attempts per IP
+          </div>
+          <div style="margin-top:10px;display:flex;align-items:center;gap:6px;">
+            <div style="width:8px;height:8px;border-radius:50%;background:#10b981;
+                        box-shadow:0 0 6px rgba(16,185,129,0.6);
+                        animation:pulse 2s infinite;"></div>
+            <span style="font-size:11px;color:#059669;font-weight:600;">ACTIVE</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Layer 3 -->
+      <div style="background:linear-gradient(135deg,#fff7ed,#ffedd5);
+                  border:1px solid #fed7aa;border-radius:12px;padding:18px;
+                  position:relative;overflow:hidden;">
+        <div style="position:absolute;top:0;left:0;width:4px;height:100%;
+                    background:linear-gradient(180deg,#f97316,#ea580c);
+                    border-radius:4px 0 0 4px;"></div>
+        <div style="padding-left:8px;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+            <span style="font-size:18px;">🧹</span>
+            <span style="font-family:'DM Sans',sans-serif;font-weight:700;
+                         font-size:13px;color:#7c2d12;">Layer 3 — Input Sanitization</span>
+          </div>
+          <div style="font-size:12px;color:#c2410c;font-family:'DM Sans',sans-serif;
+                      line-height:1.6;">
+            All POST inputs scanned for <strong>SQL injection & XSS</strong>
+          </div>
+          <div style="margin-top:10px;display:flex;align-items:center;gap:6px;">
+            <div style="width:8px;height:8px;border-radius:50%;background:#10b981;
+                        box-shadow:0 0 6px rgba(16,185,129,0.6);
+                        animation:pulse 2s infinite;"></div>
+            <span style="font-size:11px;color:#059669;font-weight:600;">ACTIVE</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Layer 4 -->
+      <div style="background:linear-gradient(135deg,#fdf2f8,#fce7f3);
+                  border:1px solid #fbcfe8;border-radius:12px;padding:18px;
+                  position:relative;overflow:hidden;">
+        <div style="position:absolute;top:0;left:0;width:4px;height:100%;
+                    background:linear-gradient(180deg,#ec4899,#db2777);
+                    border-radius:4px 0 0 4px;"></div>
+        <div style="padding-left:8px;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+            <span style="font-size:18px;">🔐</span>
+            <span style="font-family:'DM Sans',sans-serif;font-weight:700;
+                         font-size:13px;color:#831843;">Layer 4 — Admin Protection</span>
+          </div>
+          <div style="font-size:12px;color:#be185d;font-family:'DM Sans',sans-serif;
+                      line-height:1.6;">
+            Secret key required — admin panel <strong>not publicly accessible</strong>
+          </div>
+          <div style="margin-top:10px;display:flex;align-items:center;gap:6px;">
+            <div style="width:8px;height:8px;border-radius:50%;background:#10b981;
+                        box-shadow:0 0 6px rgba(16,185,129,0.6);
+                        animation:pulse 2s infinite;"></div>
+            <span style="font-size:11px;color:#059669;font-weight:600;">ACTIVE</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Layer 5 -->
+      <div style="background:linear-gradient(135deg,#f0fdf4,#dcfce7);
+                  border:1px solid #bbf7d0;border-radius:12px;padding:18px;
+                  position:relative;overflow:hidden;">
+        <div style="position:absolute;top:0;left:0;width:4px;height:100%;
+                    background:linear-gradient(180deg,#22c55e,#16a34a);
+                    border-radius:4px 0 0 4px;"></div>
+        <div style="padding-left:8px;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+            <span style="font-size:18px;">👤</span>
+            <span style="font-family:'DM Sans',sans-serif;font-weight:700;
+                         font-size:13px;color:#14532d;">Layer 5 — Role Enforcement</span>
+          </div>
+          <div style="font-size:12px;color:#15803d;font-family:'DM Sans',sans-serif;
+                      line-height:1.6;">
+            Buyers <strong>cannot access</strong> seller routes and vice versa
+          </div>
+          <div style="margin-top:10px;display:flex;align-items:center;gap:6px;">
+            <div style="width:8px;height:8px;border-radius:50%;background:#10b981;
+                        box-shadow:0 0 6px rgba(16,185,129,0.6);
+                        animation:pulse 2s infinite;"></div>
+            <span style="font-size:11px;color:#059669;font-weight:600;">ACTIVE</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Layer 6 -->
+      <div style="background:linear-gradient(135deg,#fffbeb,#fef3c7);
+                  border:1px solid #fde68a;border-radius:12px;padding:18px;
+                  position:relative;overflow:hidden;">
+        <div style="position:absolute;top:0;left:0;width:4px;height:100%;
+                    background:linear-gradient(180deg,#eab308,#ca8a04);
+                    border-radius:4px 0 0 4px;"></div>
+        <div style="padding-left:8px;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+            <span style="font-size:18px;">📋</span>
+            <span style="font-family:'DM Sans',sans-serif;font-weight:700;
+                         font-size:13px;color:#713f12;">Layer 6 — Request Logger</span>
+          </div>
+          <div style="font-size:12px;color:#a16207;font-family:'DM Sans',sans-serif;
+                      line-height:1.6;">
+            Every request logged with <strong>IP, user & timestamp</strong>
+          </div>
+          <div style="margin-top:10px;display:flex;align-items:center;gap:6px;">
+            <div style="width:8px;height:8px;border-radius:50%;background:#10b981;
+                        box-shadow:0 0 6px rgba(16,185,129,0.6);
+                        animation:pulse 2s infinite;"></div>
+            <span style="font-size:11px;color:#059669;font-weight:600;">ACTIVE</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Summary bar -->
+    <div style="margin-top:20px;background:linear-gradient(135deg,#0f0c29,#302b63);
+                border-radius:10px;padding:14px 20px;
+                display:flex;justify-content:space-between;align-items:center;
+                flex-wrap:wrap;gap:12px;">
+      <div style="font-family:'DM Sans',sans-serif;font-size:13px;
+                  color:rgba(255,255,255,0.7);font-weight:400;">
+        🛡️ ScripTradeX Security Engine v1.0 — All 6 protection layers operational
+      </div>
+      <div style="display:flex;gap:16px;">
+        <div style="text-align:center;">
+          <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:1.3rem;
+                      color:white;font-variant-numeric:tabular-nums;">6/6</div>
+          <div style="font-size:10px;color:rgba(255,255,255,0.4);
+                      text-transform:uppercase;letter-spacing:0.5px;">Layers Active</div>
+        </div>
+        <div style="text-align:center;">
+          <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:1.3rem;
+                      color:#10b981;font-variant-numeric:tabular-nums;">0</div>
+          <div style="font-size:10px;color:rgba(255,255,255,0.4);
+                      text-transform:uppercase;letter-spacing:0.5px;">Threats Bypassed</div>
+        </div>
+        <div style="text-align:center;">
+          <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:1.3rem;
+                      color:#10b981;font-variant-numeric:tabular-nums;">100%</div>
+          <div style="font-size:10px;color:rgba(255,255,255,0.4);
+                      text-transform:uppercase;letter-spacing:0.5px;">Uptime</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Revenue Stats -->
+<div class="row g-3 mb-4">
+  <div class="col-md-4">
+    <div class="card text-center shadow-sm border-0" style="background:#1a1a1a;color:white;">
+      <div class="card-body py-4">
+        <div class="fs-2 fw-bold text-success">₹{{ "{:,.0f}".format(total_commission) }}</div>
+        <div class="small mt-1" style="color:#aaa;">Total Commission Earned (1%)</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card text-center shadow-sm">
+      <div class="card-body py-4">
+        <div class="fs-2 fw-bold text-dark">₹{{ "{:,.0f}".format(total_volume) }}</div>
+        <div class="text-muted small mt-1">Total Transaction Volume</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card text-center shadow-sm">
+      <div class="card-body py-4">
+        <div class="fs-2 fw-bold text-primary">{{ total_txns }}</div>
+        <div class="text-muted small mt-1">Settled Transactions</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Transaction Status Breakdown -->
+<div class="card shadow-sm mb-4">
+  <div class="card-header bg-white fw-semibold">Transaction Status Breakdown</div>
+  <div class="card-body p-0">
+    <table class="table mb-0">
+      <thead class="table-light">
+        <tr>
+          <th>Status</th>
+          <th>Count</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in all_txns %}
+        <tr>
+          <td>
+            {% if row.escrowStatus == 'SETTLED' %}
+              <span class="badge bg-success">{{ row.escrowStatus }}</span>
+            {% elif row.escrowStatus == 'CANCELLED' %}
+              <span class="badge bg-secondary">{{ row.escrowStatus }}</span>
+            {% elif row.escrowStatus == 'FUNDS_HELD' %}
+              <span class="badge bg-primary">{{ row.escrowStatus }}</span>
+            {% else %}
+              <span class="badge bg-warning text-dark">{{ row.escrowStatus }}</span>
+            {% endif %}
+          </td>
+          <td class="fw-bold">{{ row.count }}</td>
+        </tr>
+        {% endfor %}
+        {% if not all_txns %}
+        <tr>
+          <td colspan="2" class="text-muted text-center p-3">No transactions yet.</td>
+        </tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Commission Ledger -->
+<div class="card shadow-sm">
+  <div class="card-header bg-white fw-semibold d-flex justify-content-between align-items-center">
+    Commission Ledger — Settled Transactions
+    {% if settled %}
+    <span class="badge bg-success">{{ settled | length }} transactions</span>
+    {% endif %}
+  </div>
+  <div class="card-body p-0">
+    {% if settled %}
+    <table class="table table-hover mb-0">
+      <thead class="table-light">
+        <tr>
+          <th>Txn ID</th>
+          <th>Scrip ID</th>
+          <th>Buyer</th>
+          <th>Seller</th>
+          <th>Face Value</th>
+          <th>Agreed Price</th>
+          <th>Commission (1%)</th>
+          <th>Seller Payout</th>
+          <th>Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for t in settled %}
+        <tr>
+          <td class="text-muted small">{{ t.txnId }}</td>
+          <td class="fw-bold">{{ t.scripId }}</td>
+          <td class="small">{{ t.buyerCompany }}</td>
+          <td class="small">{{ t.sellerCompany }}</td>
+          <td>₹{{ "{:,.0f}".format(t.faceValue) }}</td>
+          <td>₹{{ "{:,.0f}".format(t.agreedPrice) }}</td>
+          <td class="fw-bold text-success">₹{{ "{:,.0f}".format(t.commission) }}</td>
+          <td>₹{{ "{:,.0f}".format(t.agreedPrice - t.commission) }}</td>
+          <td class="text-muted small">{{ t.createdAt }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+      <tfoot class="table-light">
+        <tr>
+          <td colspan="6" class="fw-bold text-end">Total Commission Earned</td>
+          <td class="fw-bold text-success">₹{{ "{:,.0f}".format(total_commission) }}</td>
+          <td colspan="2"></td>
+        </tr>
+      </tfoot>
+    </table>
+    {% else %}
+    <p class="text-muted p-3 mb-0">
+      No settled transactions yet. Commission will appear here after first settlement.
+    </p>
+    {% endif %}
+  </div>
+</div>
+<!-- Fines Ledger -->
+{% set all_fines = settled | selectattr('finedAmount', 'gt', 0) | list %}
+{% if all_fines %}
+<div class="card shadow-sm mt-4">
+  <div class="card-header d-flex justify-content-between align-items-center"
+       style="background:linear-gradient(135deg,#fef2f2,#fee2e2);
+              border-bottom:1px solid #fca5a5;">
+    <span style="color:#991b1b;font-weight:700;">⚠️ Penalty Ledger</span>
+    <span style="background:#fee2e2;color:#991b1b;padding:4px 12px;
+                 border-radius:20px;font-size:12px;font-weight:700;
+                 border:1px solid #fca5a5;">
+      {{ all_fines | length }} penalt{% if all_fines | length > 1 %}ies{% else %}y{% endif %}
+    </span>
+  </div>
+  <div class="card-body p-0">
+    <table class="table table-hover mb-0">
+      <thead>
+        <tr style="background:#fff5f5;">
+          <th>Txn ID</th>
+          <th>Scrip ID</th>
+          <th>Buyer</th>
+          <th>Face Value</th>
+          <th>Fine (5-10%)</th>
+          <th>Reason</th>
+          <th>Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for f in all_fines %}
+        <tr>
+          <td class="text-muted small">{{ f.txnId }}</td>
+          <td class="fw-bold">{{ f.scripId }}</td>
+          <td>{{ f.buyerCompany }}</td>
+          <td>₹{{ "{:,.0f}".format(f.faceValue) }}</td>
+          <td style="color:#dc2626;font-weight:700;">
+            ₹{{ "{:,.0f}".format(f.finedAmount) }}
+          </td>
+          <td style="font-size:12px;color:#6b7280;">{{ f.fineReason }}</td>
+          <td class="text-muted small">{{ f.createdAt }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+      <tfoot style="background:#fff5f5;">
+        <tr>
+          <td colspan="4" class="fw-bold text-end" style="color:#991b1b;">
+            Total Penalties Collected
+          </td>
+          <td style="font-weight:800;color:#dc2626;">
+            ₹{{ "{:,.0f}".format(all_fines | sum(attribute='finedAmount')) }}
+          </td>
+          <td colspan="2"></td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+</div>
+{% endif %}
+<style>
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50%       { opacity: 0.6; transform: scale(1.3); }
+  }
+</style>
+
+{% endblock %}

@@ -1,0 +1,377 @@
+{% extends "base.html" %}
+{% block title %}Buyer Dashboard — ScripTradeX{% endblock %}
+
+{% block content %}
+
+<!-- Header -->
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:28px;">
+  <div>
+    <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:1.4rem;
+                color:#0a2540;letter-spacing:-0.3px;">Buyer Dashboard</div>
+    <div style="font-size:13px;color:#8898aa;margin-top:2px;">{{ session.company }}</div>
+  </div>
+  <a href="/marketplace/" class="btn btn-outline-dark btn-sm">Browse Marketplace</a>
+</div>
+
+<!-- Stats -->
+<!-- Stats -->
+<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:28px;">
+  <div style="background:linear-gradient(135deg,#1a7f4b,#00c853);border-radius:14px;
+              padding:22px 24px;color:white;">
+    <div style="font-size:1.6rem;font-weight:900;font-family:'Syne',sans-serif;
+                line-height:1;letter-spacing:-1.5px;text-shadow:0 2px 8px rgba(0,0,0,0.2);
+                font-variant-numeric:tabular-nums;">
+      ₹{{ "{:,.0f}".format(buyer.balance) }}
+    </div>
+    <div style="font-size:11px;opacity:0.85;margin-top:8px;text-transform:uppercase;
+                letter-spacing:1.5px;font-family:'DM Sans',sans-serif;font-weight:600;">
+      Wallet Balance
+    </div>
+  </div>
+  <div style="background:linear-gradient(135deg,#4facfe,#00f2fe);border-radius:14px;
+              padding:22px 24px;color:white;">
+    <div style="font-size:2.4rem;font-weight:900;font-family:'Syne',sans-serif;
+                line-height:1;letter-spacing:-2px;text-shadow:0 2px 8px rgba(0,0,0,0.15);">
+      {{ demands | selectattr('status','equalto','open') | list | length }}
+    </div>
+    <div style="font-size:11px;opacity:0.85;margin-top:8px;text-transform:uppercase;
+                letter-spacing:1.5px;font-family:'DM Sans',sans-serif;font-weight:600;">
+      Open Demands
+    </div>
+  </div>
+  <div style="background:linear-gradient(135deg,#f093fb,#f5576c);border-radius:14px;
+              padding:22px 24px;color:white;">
+    <div style="font-size:2.4rem;font-weight:900;font-family:'Syne',sans-serif;
+                line-height:1;letter-spacing:-2px;text-shadow:0 2px 8px rgba(0,0,0,0.15);">
+      {{ deal_activity | length }}
+    </div>
+    <div style="font-size:11px;opacity:0.85;margin-top:8px;text-transform:uppercase;
+                letter-spacing:1.5px;font-family:'DM Sans',sans-serif;font-weight:600;">
+      Total Deals
+    </div>
+  </div>
+</div>
+
+<!-- Tabs -->
+<div style="display:flex;gap:4px;background:#f0f4f8;border-radius:12px;
+            padding:4px;margin-bottom:24px;">
+  <button onclick="showTab('search')" id="tab-search"
+    class="dash-tab active-tab">
+    🔍 Find Scrips
+  </button>
+  <button onclick="showTab('deals')" id="tab-deals"
+    class="dash-tab inactive-tab">
+    🤝 Deal Activity
+    {% set active_deals = deal_activity | selectattr('escrowStatus','in',['BUYER_INTERESTED','SELLER_CONFIRMED','FUNDS_HELD']) | list | length %}
+    {% if active_deals > 0 %}
+    <span style="background:#f5576c;color:white;border-radius:20px;
+                 padding:1px 7px;font-size:11px;margin-left:4px;">{{ active_deals }}</span>
+    {% endif %}
+  </button>
+</div>
+
+<!-- Find Scrips Tab -->
+<div id="panel-search">
+
+  <!-- Demand Form -->
+  <div style="background:white;border:1px solid #e3e8ef;border-radius:14px;
+              padding:24px;margin-bottom:20px;
+              box-shadow:0 2px 12px rgba(10,37,64,0.06);">
+    <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:14px;
+                color:#0a2540;margin-bottom:16px;">Place a Demand</div>
+    <form method="POST" action="/buyer/place-demand">
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;">
+        <div>
+          <label class="form-label">Scrip Type</label>
+          <select name="scrip_type" class="form-select" required>
+            <option value="">— Select —</option>
+            <option value="RoDTEP">RoDTEP</option>
+            <option value="ROSCTL">ROSCTL</option>
+            <option value="any">Any</option>
+          </select>
+        </div>
+        <div>
+          <label class="form-label">Min Value (₹)</label>
+          <input type="number" name="min_value" class="form-control"
+                 placeholder="e.g. 100000" required>
+        </div>
+        <div>
+          <label class="form-label">Max Value (₹)</label>
+          <input type="number" name="max_value" class="form-control"
+                 placeholder="e.g. 800000" required>
+        </div>
+        <div>
+          <label class="form-label">Min Days to Expiry</label>
+          <input type="number" name="min_expiry_days" class="form-control"
+                 placeholder="e.g. 100" required>
+        </div>
+      </div>
+      <div style="margin-top:16px;">
+        <button type="submit" class="btn btn-dark"
+          style="background:#0a2540;border-color:#0a2540;padding:9px 24px;">
+          Find Matching Scrips
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Matched Results -->
+  {% if matches %}
+  <div style="margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;">
+    <div style="font-family:'Syne',sans-serif;font-weight:700;color:#0a2540;font-size:14px;">
+      Matched Scrips
+    </div>
+    <span style="background:#e8f5e9;color:#1a7f4b;padding:4px 12px;
+                 border-radius:20px;font-size:12px;font-weight:600;">
+      {{ matches | length }} found
+    </span>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;">
+    {% for listing in matches %}
+    <div style="background:white;border:1px solid #e3e8ef;border-radius:14px;
+                padding:20px;box-shadow:0 2px 12px rgba(10,37,64,0.06);
+                transition:box-shadow 0.2s,transform 0.2s;"
+         onmouseover="this.style.boxShadow='0 6px 24px rgba(10,37,64,0.12)';this.style.transform='translateY(-2px)'"
+         onmouseout="this.style.boxShadow='0 2px 12px rgba(10,37,64,0.06)';this.style.transform='translateY(0)'">
+
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+        <span style="background:{% if listing.type == 'RoDTEP' %}#e8f0fe{% else %}#fce4ec{% endif %};
+                     color:{% if listing.type == 'RoDTEP' %}#1a56db{% else %}#c0143c{% endif %};
+                     padding:3px 10px;border-radius:20px;font-size:11.5px;font-weight:600;">
+          {{ listing.type }}
+        </span>
+        <span style="background:#e8f5e9;color:#1a7f4b;padding:3px 10px;
+                     border-radius:20px;font-size:11.5px;font-weight:600;">
+          {{ listing.discountRate }}% off
+        </span>
+      </div>
+
+      <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:15px;
+                  color:#0a2540;margin-bottom:3px;">{{ listing.scripId }}</div>
+      <div style="font-size:12.5px;color:#8898aa;margin-bottom:16px;">
+        {{ listing.sellerCompany }}
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
+        <div style="background:#f6f9fc;border-radius:10px;padding:12px;text-align:center;">
+          <div style="font-size:10.5px;color:#8898aa;text-transform:uppercase;
+                      letter-spacing:0.5px;margin-bottom:4px;">Face Value</div>
+          <div style="font-weight:700;font-size:14px;color:#0a2540;">
+            ₹{{ "{:,.0f}".format(listing.faceValue) }}
+          </div>
+        </div>
+        <div style="background:#e8f5e9;border-radius:10px;padding:12px;text-align:center;
+                    border:1px solid #b2dfcc;">
+          <div style="font-size:10.5px;color:#1a7f4b;text-transform:uppercase;
+                      letter-spacing:0.5px;margin-bottom:4px;">Ask Price</div>
+          <div style="font-weight:700;font-size:14px;color:#1a7f4b;">
+            ₹{{ "{:,.0f}".format(listing.askPrice) }}
+          </div>
+        </div>
+      </div>
+
+      <div style="background:#fff8e1;border-radius:8px;padding:8px;text-align:center;
+                  font-size:12.5px;color:#e65100;font-weight:600;margin-bottom:14px;">
+        You save ₹{{ "{:,.0f}".format(listing.faceValue - listing.askPrice) }}
+      </div>
+
+      <div style="font-size:12px;color:#8898aa;margin-bottom:14px;">
+        Expires <strong style="color:#425466;">{{ listing.expiryDate }}</strong>
+      </div>
+
+      <form method="POST" action="/escrow/initiate/{{ listing.listingId }}">
+        <button class="btn btn-dark w-100 btn-sm"
+          style="background:#0a2540;border-color:#0a2540;padding:8px;">
+          Lock & Buy
+        </button>
+      </form>
+
+    </div>
+    {% endfor %}
+  </div>
+
+  {% elif latest_demand %}
+  <div style="background:#fff8e1;border:1px solid #ffd97d;border-radius:12px;
+              padding:16px 20px;color:#7a4800;font-size:13.5px;">
+    ⚠️ No matching scrips found. Try adjusting your value range or expiry days.
+  </div>
+  {% endif %}
+
+</div>
+
+<!-- Deal Activity Tab -->
+<div id="panel-deals" style="display:none;">
+  <div style="background:white;border:1px solid #e3e8ef;border-radius:14px;overflow:hidden;
+              box-shadow:0 2px 12px rgba(10,37,64,0.06);">
+    {% if deal_activity %}
+    <table class="table table-hover mb-0">
+      <thead>
+        <tr style="background:#f8faff;">
+          <th>Scrip ID</th><th>Seller</th><th>Agreed Price</th><th>Status</th><th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for d in deal_activity %}
+        <tr>
+          <td class="fw-bold">{{ d.scripId }}</td>
+          <td style="color:#425466;">{{ d.sellerCompany }}</td>
+          <td style="font-weight:600;color:#0a2540;">₹{{ "{:,.0f}".format(d.agreedPrice) }}</td>
+          <td>
+            {% if d.escrowStatus == 'BUYER_INTERESTED' %}
+              <span style="background:#fff8e1;color:#e65100;padding:4px 12px;
+                           border-radius:20px;font-size:12px;font-weight:600;">
+                🕐 Awaiting seller response
+              </span>
+            {% elif d.escrowStatus == 'SELLER_CONFIRMED' %}
+              <span style="background:#e8f5e9;color:#1a7f4b;padding:4px 12px;
+                           border-radius:20px;font-size:12px;font-weight:600;">
+                ✅ Approved — pay now
+              </span>
+            {% elif d.escrowStatus == 'FUNDS_HELD' %}
+              <span style="background:#e3f2fd;color:#0d47a1;padding:4px 12px;
+                           border-radius:20px;font-size:12px;font-weight:600;">
+                💰 Payment done — awaiting settlement
+              </span>
+            {% elif d.escrowStatus == 'SETTLED' %}
+              <span style="background:#e8f5e9;color:#1a7f4b;padding:4px 12px;
+                           border-radius:20px;font-size:12px;font-weight:600;">
+                ✔ Deal complete
+              </span>
+            {% elif d.escrowStatus == 'CANCELLED' and d.cancelledBy == d.sellerId %}
+              <span style="background:#fce4ec;color:#c0143c;padding:4px 12px;
+                           border-radius:20px;font-size:12px;font-weight:600;">
+                ❌ Rejected by {{ d.sellerCompany }}
+              </span>
+            {% elif d.escrowStatus == 'CANCELLED' %}
+              <span style="background:#f0f4f8;color:#8898aa;padding:4px 12px;
+                           border-radius:20px;font-size:12px;font-weight:600;">
+                ✖ You cancelled
+              </span>
+            {% endif %}
+          </td>
+          <td>
+            {% if d.escrowStatus == 'SELLER_CONFIRMED' %}
+              <a href="/escrow/payment/{{ d.txnId }}" class="btn btn-sm btn-success">
+                Pay Now
+              </a>
+            {% elif d.escrowStatus == 'FUNDS_HELD' %}
+              <a href="/escrow/status/{{ d.txnId }}"
+                 class="btn btn-sm btn-outline-dark">Track</a>
+            {% else %}
+              <span style="color:#c8d0da;">—</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <div style="padding:48px;text-align:center;">
+      <div style="font-size:36px;margin-bottom:12px;">🤝</div>
+      <div style="font-family:'Syne',sans-serif;font-weight:700;color:#0a2540;margin-bottom:6px;">
+        No deal activity yet
+      </div>
+      <div style="font-size:13px;color:#8898aa;">
+        Lock a scrip from the Find Scrips tab to start a deal.
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+<!-- Fines & Penalties -->
+{% if fines %}
+<div style="background:white;border:1px solid #fca5a5;border-radius:14px;
+            overflow:hidden;box-shadow:0 2px 12px rgba(239,68,68,0.08);
+            margin-bottom:24px;">
+  <div style="background:linear-gradient(135deg,#fef2f2,#fee2e2);
+              padding:16px 22px;border-bottom:1px solid #fca5a5;
+              display:flex;justify-content:space-between;align-items:center;">
+    <div>
+      <span style="font-family:'DM Sans',sans-serif;font-weight:700;
+                   font-size:14px;color:#991b1b;">
+        ⚠️ Penalty Notices
+      </span>
+      <span style="font-size:12px;color:#b91c1c;margin-left:8px;font-weight:400;">
+        — fines applied for delayed settlement
+      </span>
+    </div>
+    <span style="background:#fee2e2;color:#991b1b;padding:4px 12px;
+                 border-radius:20px;font-size:12px;font-weight:700;
+                 border:1px solid #fca5a5;">
+      {{ fines | length }} fine{% if fines | length > 1 %}s{% endif %}
+    </span>
+  </div>
+  <table class="table table-hover mb-0">
+    <thead>
+      <tr style="background:#fff5f5;">
+        <th>Scrip ID</th>
+        <th>Seller</th>
+        <th>Face Value</th>
+        <th>Fine Amount</th>
+        <th>Reason</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for f in fines %}
+      <tr>
+        <td class="fw-bold">{{ f.scripId }}</td>
+        <td style="color:#425466;">{{ f.sellerCompany }}</td>
+        <td>₹{{ "{:,.0f}".format(f.faceValue) }}</td>
+        <td>
+          <span style="color:#dc2626;font-weight:700;font-family:'Syne',sans-serif;
+                       font-variant-numeric:tabular-nums;">
+            − ₹{{ "{:,.0f}".format(f.finedAmount) }}
+          </span>
+        </td>
+        <td style="font-size:12px;color:#6b7280;max-width:280px;">
+          {{ f.fineReason }}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+    <tfoot style="background:#fff5f5;">
+      <tr>
+        <td colspan="3" style="font-weight:700;text-align:right;
+                                font-family:'DM Sans',sans-serif;color:#991b1b;">
+          Total Fines Deducted
+        </td>
+        <td style="font-weight:800;color:#dc2626;font-family:'Syne',sans-serif;
+                   font-variant-numeric:tabular-nums;">
+          − ₹{{ "{:,.0f}".format(fines | sum(attribute='finedAmount')) }}
+        </td>
+        <td></td>
+      </tr>
+    </tfoot>
+  </table>
+</div>
+{% endif %}
+<style>
+  .dash-tab {
+    flex:1;padding:10px 16px;border:none;border-radius:10px;
+    font-size:13.5px;font-weight:600;cursor:pointer;
+    transition:all 0.2s;font-family:'DM Sans',sans-serif;
+  }
+  .active-tab   { background:#0a2540;color:white; }
+  .inactive-tab { background:transparent;color:#8898aa; }
+  .inactive-tab:hover { background:rgba(10,37,64,0.06);color:#425466; }
+</style>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+  function showTab(tab) {
+    document.getElementById('panel-search').style.display = tab === 'search' ? 'block' : 'none';
+    document.getElementById('panel-deals').style.display  = tab === 'deals'  ? 'block' : 'none';
+    document.getElementById('tab-search').className = 'dash-tab ' + (tab === 'search' ? 'active-tab' : 'inactive-tab');
+    document.getElementById('tab-deals').className  = 'dash-tab ' + (tab === 'deals'  ? 'active-tab' : 'inactive-tab');
+  }
+
+  // Auto-switch to Deal Activity tab if there are active deals needing attention
+  {% set needs_attention = deal_activity | selectattr('escrowStatus','equalto','SELLER_CONFIRMED') | list | length %}
+  {% if needs_attention > 0 %}
+  // Uncomment below to auto-open Deal Activity when payment is pending:
+  // showTab('deals');
+  {% endif %}
+</script>
+{% endblock %}

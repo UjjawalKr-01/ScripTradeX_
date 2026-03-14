@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}ScripTradeX{% endblock %}</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}">
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg d-flex align-items-center">
+  <a class="navbar-brand" href="/">⬡ ScripTradeX</a>
+  {% if session.uid %}
+  <div class="ms-auto d-flex align-items-center gap-3">
+    <span class="company-name">{{ session.company }}</span>
+    <span class="role-badge">{{ session.role }}</span>
+
+    <!-- Security Trust Badge -->
+    <div style="display:flex;align-items:center;gap:5px;
+                background:rgba(16,185,129,0.08);
+                border:1px solid rgba(16,185,129,0.25);
+                border-radius:20px;padding:4px 12px;
+                cursor:default;"
+         title="6-Layer Security Active">
+      <div style="width:7px;height:7px;border-radius:50%;
+                  background:#10b981;
+                  box-shadow:0 0 6px rgba(16,185,129,0.7);
+                  animation:secpulse 2s infinite;"></div>
+      <span style="font-size:11.5px;font-weight:600;
+                   color:#059669;font-family:'DM Sans',sans-serif;
+                   letter-spacing:0.2px;">
+        🛡️ Secured
+      </span>
+    </div>
+
+    <a href="/auth/logout" class="btn-logout">Logout</a>
+  </div>
+  {% endif %}
+</nav>
+
+<style>
+  @keyframes secpulse {
+    0%, 100% { opacity:1; transform:scale(1); }
+    50%       { opacity:0.5; transform:scale(1.4); }
+  }
+</style>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+  <div class="container" style="max-width:1100px;padding-top:20px;">
+    {% for category, message in messages %}
+    <div class="alert alert-{{ category }} alert-dismissible fade show">
+      {{ message }}
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+{% endwith %}
+
+<main class="container">
+  {% block content %}{% endblock %}
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+{% block scripts %}{% endblock %}
+
+<!-- Chatbot Bubble -->
+<button id="chatToggle" onclick="toggleChat()"
+  style="position:fixed;bottom:24px;right:24px;z-index:9999;
+         width:52px;height:52px;border-radius:50%;
+         background:#0a2540;color:white;border:none;
+         font-size:20px;box-shadow:0 4px 16px rgba(10,37,64,0.25);
+         cursor:pointer;transition:transform 0.2s,box-shadow 0.2s;"
+  onmouseover="this.style.transform='scale(1.08)';this.style.boxShadow='0 6px 20px rgba(10,37,64,0.35)'"
+  onmouseout="this.style.transform='scale(1)';this.style.boxShadow='0 4px 16px rgba(10,37,64,0.25)'">
+  💬
+</button>
+
+<div id="chatBox"
+  style="display:none;position:fixed;bottom:86px;right:24px;z-index:9999;
+         width:340px;height:460px;background:white;border-radius:12px;
+         box-shadow:0 12px 40px rgba(10,37,64,0.15);
+         flex-direction:column;overflow:hidden;
+         border:1px solid #e3e8ef;font-family:'DM Sans',sans-serif;">
+
+  <div style="background:#0a2540;color:white;padding:15px 18px;
+              display:flex;justify-content:space-between;align-items:center;">
+    <div>
+      <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:14px;">
+        ScripTradeX Assistant
+      </div>
+      <div style="font-size:11px;color:rgba(255,255,255,0.55);margin-top:1px;">
+        Ask me anything about the platform
+      </div>
+    </div>
+    <span onclick="toggleChat()"
+      style="cursor:pointer;font-size:16px;opacity:0.6;transition:opacity 0.15s;"
+      onmouseover="this.style.opacity=1"
+      onmouseout="this.style.opacity=0.6">✕</span>
+  </div>
+
+  <div id="chatMessages"
+    style="flex:1;overflow-y:auto;padding:14px;display:flex;
+           flex-direction:column;gap:10px;background:#f6f9fc;">
+    <div class="bot-msg">
+      👋 Hi! I'm the ScripTradeX Assistant. Ask me anything about scrips, escrow, or how the platform works.
+    </div>
+  </div>
+
+  <div style="padding:10px 12px;border-top:1px solid #e3e8ef;
+              display:flex;gap:8px;background:white;">
+    <input id="chatInput" type="text" placeholder="Type your question..."
+      style="flex:1;border:1px solid #e3e8ef;border-radius:7px;
+             padding:8px 12px;font-size:13px;outline:none;
+             font-family:'DM Sans',sans-serif;transition:border 0.15s;"
+      onfocus="this.style.borderColor='#0570de';this.style.boxShadow='0 0 0 3px rgba(5,112,222,0.1)'"
+      onblur="this.style.borderColor='#e3e8ef';this.style.boxShadow='none'"
+      onkeydown="if(event.key==='Enter') sendMessage()">
+    <button onclick="sendMessage()"
+      style="background:#0a2540;color:white;border:none;border-radius:7px;
+             padding:8px 14px;font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif;
+             font-weight:500;transition:background 0.15s;"
+      onmouseover="this.style.background='#0d3060'"
+      onmouseout="this.style.background='#0a2540'">
+      Send
+    </button>
+  </div>
+</div>
+
+<style>
+  .bot-msg {
+    background: white;
+    border: 1px solid #e3e8ef;
+    border-radius: 10px 10px 10px 2px;
+    padding: 10px 13px;
+    font-size: 13px;
+    line-height: 1.55;
+    max-width: 92%;
+    color: #425466;
+  }
+  .user-msg {
+    background: #0a2540;
+    color: white;
+    border-radius: 10px 10px 2px 10px;
+    padding: 10px 13px;
+    font-size: 13px;
+    line-height: 1.55;
+    max-width: 92%;
+    align-self: flex-end;
+  }
+</style>
+
+<script>
+  function toggleChat() {
+    const box = document.getElementById('chatBox');
+    box.style.display = box.style.display === 'none' || box.style.display === '' ? 'flex' : 'none';
+  }
+  function sendMessage() {
+    const input = document.getElementById('chatInput');
+    const text = input.value.trim();
+    if (!text) return;
+    appendMessage(text, 'user');
+    input.value = '';
+    setTimeout(() => appendMessage(getReply(text.toLowerCase()), 'bot'), 300);
+  }
+  function appendMessage(text, sender) {
+    const c = document.getElementById('chatMessages');
+    const d = document.createElement('div');
+    d.className = sender === 'user' ? 'user-msg' : 'bot-msg';
+    d.innerText = text;
+    c.appendChild(d);
+    c.scrollTop = c.scrollHeight;
+  }
+  function getReply(msg) {
+    if (msg.includes('rodtep')) return "RoDTEP stands for Remission of Duties and Taxes on Exported Products. It's a government scheme that refunds embedded taxes to exporters in the form of duty credit scrips, which can be used to pay import duties.";
+    if (msg.includes('rosctl')) return "RoSCTL stands for Rebate of State and Central Taxes and Levies. It is a scheme for textile exporters, refunding state and central taxes as duty credit scrips.";
+    if (msg.includes('scrip') && (msg.includes('what') || msg.includes('mean') || msg.includes('is a'))) return "A duty credit scrip is a certificate issued by the Indian government to exporters. It can be used to pay customs/import duties. On ScripTradeX, exporters sell these scrips to importers at a discount.";
+    if (msg.includes('escrow')) return "Escrow is a secure holding mechanism. When a buyer pays for a scrip, funds are held in escrow by the platform. The seller only receives payment after confirming the transfer. This protects both parties.";
+    if (msg.includes('commission') || msg.includes('fee') || msg.includes('charge') || msg.includes('1%')) return "ScripTradeX charges a 1% platform commission on every settled transaction. This is deducted from the seller's payout. For example, if the agreed price is ₹2,00,000, the seller receives ₹1,98,000 and ₹2,000 goes to the platform.";
+    if (msg.includes('list') && (msg.includes('how') || msg.includes('scrip'))) return "To list a scrip: login as a Seller → go to your Dashboard → click '+ List New Scrip' → select a scrip from your government registry → enter your asking price → click Verify & List.";
+    if (msg.includes('buy') || msg.includes('purchase') || msg.includes('lock')) return "To buy a scrip: login as a Buyer → go to your Dashboard → fill in the demand form with your requirements → matching scrips will appear → click 'Lock & Buy' to send an enquiry to the seller.";
+    if (msg.includes('discount')) return "Sellers list scrips below their face value to attract buyers. For example, a scrip with face value ₹2,00,000 might be listed at ₹1,80,000 — giving the buyer a 10% discount while still getting immediate liquidity for the seller.";
+    if (msg.includes('deal activity') || msg.includes('activity')) return "Deal Activity on your dashboard shows all enquiries and their current stage — whether a seller has responded, whether payment is pending, or whether the deal has been settled or rejected.";
+    if (msg.includes('enquir') || msg.includes('inquiry')) return "When a buyer clicks 'Lock & Buy', it sends an enquiry to the seller. The seller will see it in their Deal Activity and can either Confirm or Reject it. If confirmed, the buyer proceeds to payment.";
+    if (msg.includes('reject') || msg.includes('rejected')) return "If a seller rejects your enquiry, the scrip is automatically relisted on the marketplace and you will see the rejection in your Deal Activity section. You can then search for other matching scrips.";
+    if (msg.includes('pay') || msg.includes('payment')) return "Once the seller confirms your enquiry, a 'Pay Now' button appears in your Deal Activity. Clicking it takes you to the payment page where you can pay via Card, UPI, or Net Banking. Funds are then held in escrow.";
+    if (msg.includes('settl')) return "After the buyer pays, funds are held in escrow. The seller then clicks 'Settle' in their Deal Activity. This releases the payment to the seller and transfers the scrip ownership to the buyer.";
+    if (msg.includes('marketplace')) return "The Marketplace shows all active scrip listings from sellers. You can filter by type (RoDTEP/ROSCTL), value range, and expiry. It's a read-only view — to buy, use the Buyer Dashboard demand form.";
+    if (msg.includes('expir')) return "Every scrip has an expiry date set by the government. After expiry, the scrip cannot be used to pay import duties. Always check the expiry when buying — ScripTradeX lets you filter by minimum days to expiry.";
+    if (msg.includes('face value')) return "Face value is the official value of the scrip as issued by the government — the amount it can offset in import duties. Sellers list scrips below face value to offer a discount to buyers.";
+    if (msg.includes('who') && (msg.includes('use') || msg.includes('platform') || msg.includes('for'))) return "ScripTradeX is for two types of users: Exporters (Sellers) who hold government-issued duty credit scrips and want to convert them to cash, and Importers (Buyers) who want to reduce their customs duty payments at a discount.";
+    if (msg.includes('icegate')) return "ICEGATE is India's customs portal maintained by CBIC. ScripTradeX verifies scrip authenticity against the government registry before listing, ensuring only valid scrips are traded on the platform.";
+    if (msg.includes('login') || msg.includes('log in') || msg.includes('sign in') || msg.includes('access') || msg.includes('password')) return "To login: select Seller or Buyer tab → choose your company → enter password demo123 → click Enter. Password is same for all accounts on this demo platform.";
+    if (msg.includes('hello') || msg.includes('hi') || msg.includes('hey') || msg.includes('hii')) return "Hi there! 👋 I can help you understand how ScripTradeX works. Ask me about scrips, escrow, buying, selling, commissions, or anything else about the platform.";
+    if (msg.includes('thank')) return "You're welcome! Let me know if you have any other questions about the platform.";
+    if (msg.includes('help') || msg.includes('what can you')) return "I can answer questions about: RoDTEP & ROSCTL scrips, how to buy or sell, escrow process, 1% commission, deal activity, payments, settlements, marketplace, and more. Just ask!";
+    return "I'm not sure about that. Try asking about: scrips, RoDTEP, ROSCTL, escrow, commission, how to buy, how to sell, payments, or deal activity.";
+  }
+</script>
+</body>
+</html>

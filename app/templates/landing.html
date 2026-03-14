@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ScripTradeX — India's B2B Duty Credit Scrip Marketplace</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --navy:     #0f0c29;
+      --indigo:   #4f46e5;
+      --violet:   #7c3aed;
+      --teal:     #0ea5e9;
+      --green:    #10b981;
+      --gold:     #f59e0b;
+      --rose:     #f43f5e;
+      --white:    #ffffff;
+      --off:      #f8faff;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--off);
+      color: #1e1b4b;
+      overflow-x: hidden;
+    }
+
+    /* ── HERO ── */
+    .hero {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+      padding: 40px 20px;
+    }
+
+    /* Animated mesh background */
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 80% 60% at 20% 50%, rgba(79,70,229,0.25) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 80% at 80% 30%, rgba(14,165,233,0.2) 0%, transparent 60%),
+        radial-gradient(ellipse 50% 50% at 50% 80%, rgba(124,58,237,0.2) 0%, transparent 60%);
+      animation: meshPulse 8s ease-in-out infinite alternate;
+    }
+
+    @keyframes meshPulse {
+      0%   { opacity: 0.6; transform: scale(1); }
+      100% { opacity: 1;   transform: scale(1.05); }
+    }
+
+    /* Floating orbs */
+    .orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(60px);
+      opacity: 0.15;
+      animation: float 12s ease-in-out infinite;
+    }
+
+    .orb-1 {
+      width: 400px; height: 400px;
+      background: var(--indigo);
+      top: -100px; left: -100px;
+      animation-delay: 0s;
+    }
+
+    .orb-2 {
+      width: 300px; height: 300px;
+      background: var(--teal);
+      bottom: -80px; right: -80px;
+      animation-delay: -4s;
+    }
+
+    .orb-3 {
+      width: 200px; height: 200px;
+      background: var(--violet);
+      top: 50%; left: 60%;
+      animation-delay: -8s;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      33%       { transform: translate(30px, -20px) scale(1.1); }
+      66%       { transform: translate(-20px, 30px) scale(0.95); }
+    }
+
+    /* Grid dots overlay */
+    .hero-grid {
+      position: absolute;
+      inset: 0;
+      background-image:
+        radial-gradient(circle, rgba(255,255,255,0.08) 1px, transparent 1px);
+      background-size: 40px 40px;
+      mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black, transparent);
+    }
+
+    /* Hero content */
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      text-align: center;
+      max-width: 800px;
+    }
+
+    /* Logo badge */
+    .logo-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 50px;
+      padding: 8px 20px 8px 8px;
+      margin-bottom: 36px;
+      backdrop-filter: blur(12px);
+      animation: fadeDown 0.8s ease both;
+    }
+
+    .logo-icon {
+      width: 36px; height: 36px;
+      background: linear-gradient(135deg, var(--indigo), var(--violet));
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+      box-shadow: 0 0 20px rgba(79,70,229,0.5);
+    }
+
+    .logo-text {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 14px;
+      color: rgba(255,255,255,0.85);
+      letter-spacing: 0.5px;
+    }
+
+    /* Main headline */
+    .hero-title {
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 700;
+      font-size: clamp(2rem, 4.5vw, 3.2rem);
+      color: white;
+      letter-spacing: -0.3px;
+      line-height: 1.2;
+      margin-bottom: 16px;
+      animation: fadeUp 0.9s ease 0.2s both;
+    }
+    .hero-title .highlight {
+      background: linear-gradient(135deg, #818cf8, #a78bfa, #38bdf8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      position: relative;
+    }
+
+    /* Animated underline on highlight */
+    .hero-title .highlight::after {
+      content: '';
+      position: absolute;
+      bottom: -4px; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(135deg, #818cf8, #38bdf8);
+      border-radius: 2px;
+      animation: lineGrow 1s ease 1.2s both;
+      transform-origin: left;
+    }
+
+    @keyframes lineGrow {
+      from { transform: scaleX(0); }
+      to   { transform: scaleX(1); }
+    }
+
+    .hero-sub {
+      font-size: clamp(1rem, 2.5vw, 1.25rem);
+      color: rgba(255,255,255,0.6);
+      font-weight: 400;
+      margin-bottom: 48px;
+      letter-spacing: 0.2px;
+      animation: fadeUp 0.9s ease 0.4s both;
+    }
+
+    /* Pill tags */
+    .hero-pills {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: 48px;
+      animation: fadeUp 0.9s ease 0.6s both;
+    }
+
+    .pill {
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 50px;
+      padding: 6px 16px;
+      font-size: 12.5px;
+      color: rgba(255,255,255,0.7);
+      font-weight: 500;
+      backdrop-filter: blur(8px);
+    }
+
+    /* CTA Button */
+    .cta-wrap {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+      animation: fadeUp 0.9s ease 0.8s both;
+    }
+
+    .btn-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 32px;
+      border-radius: 12px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      text-decoration: none;
+      cursor: pointer;
+      border: none;
+      transition: all 0.25s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-cta::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(255,255,255,0.1);
+      transform: translateX(-100%);
+      transition: transform 0.3s ease;
+    }
+
+    .btn-cta:hover::before { transform: translateX(0); }
+
+    .btn-primary-cta {
+      background: linear-gradient(135deg, var(--indigo), var(--violet));
+      color: white;
+      box-shadow: 0 8px 32px rgba(79,70,229,0.4);
+    }
+
+    .btn-primary-cta:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 40px rgba(79,70,229,0.55);
+      color: white;
+    }
+
+    .btn-ghost-cta {
+      background: rgba(255,255,255,0.08);
+      color: rgba(255,255,255,0.85);
+      border: 1px solid rgba(255,255,255,0.2);
+      backdrop-filter: blur(8px);
+    }
+
+    .btn-ghost-cta:hover {
+      background: rgba(255,255,255,0.15);
+      transform: translateY(-2px);
+      color: white;
+    }
+
+    /* Scroll indicator */
+    .scroll-hint {
+      position: absolute;
+      bottom: 32px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      color: rgba(255,255,255,0.35);
+      font-size: 11px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      animation: bounce 2s ease infinite;
+      z-index: 2;
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateX(-50%) translateY(0); }
+      50%       { transform: translateX(-50%) translateY(8px); }
+    }
+
+    /* ── STATS BAR ── */
+    .stats-bar {
+      background: white;
+      border-bottom: 1px solid #e0e7ff;
+      padding: 24px 40px;
+      display: flex;
+      justify-content: center;
+      gap: 60px;
+      flex-wrap: wrap;
+      box-shadow: 0 4px 24px rgba(79,70,229,0.06);
+    }
+
+    .stat-item {
+      text-align: center;
+      opacity: 0;
+      animation: fadeUp 0.6s ease forwards;
+    }
+
+    .stat-item:nth-child(1) { animation-delay: 0.1s; }
+    .stat-item:nth-child(2) { animation-delay: 0.2s; }
+    .stat-item:nth-child(3) { animation-delay: 0.3s; }
+    .stat-item:nth-child(4) { animation-delay: 0.4s; }
+
+    .stat-num {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.7rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #4f46e5, #7c3aed);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: -1px;
+      font-variant-numeric: tabular-nums;
+      font-feature-settings: "tnum";
+    }
+
+    .stat-label {
+      font-size: 11px;
+      color: #6b7280;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-top: 6px;
+      font-family: 'DM Sans', sans-serif;
+    }
+
+    /* ── USP SECTION ── */
+    .usp-section {
+      padding: 100px 20px;
+      background: linear-gradient(180deg, #f8faff 0%, #f0f4ff 100%);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .usp-section::before {
+      content: '';
+      position: absolute;
+      top: -200px; right: -200px;
+      width: 600px; height: 600px;
+      background: radial-gradient(circle, rgba(79,70,229,0.06) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+
+    .section-label {
+      text-align: center;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 3px;
+      color: var(--indigo);
+      margin-bottom: 12px;
+      opacity: 0;
+      animation: fadeUp 0.6s ease 0.2s forwards;
+    }
+
+    .section-title {
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 700;
+      font-size: clamp(1.4rem, 2.5vw, 1.9rem);
+      color: #1e1b4b;
+      text-align: center;
+      letter-spacing: -0.2px;
+      margin-bottom: 16px;
+      opacity: 0;
+      animation: fadeUp 0.6s ease 0.3s forwards;
+    }
+
+    .section-sub {
+      text-align: center;
+      font-size: 15px;
+      color: #6b7280;
+      max-width: 520px;
+      margin: 0 auto 64px;
+      line-height: 1.7;
+      opacity: 0;
+      animation: fadeUp 0.6s ease 0.4s forwards;
+    }
+
+    /* USP Cards grid */
+    .usp-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 24px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .usp-card {
+      background: white;
+      border: 1px solid #e0e7ff;
+      border-radius: 20px;
+      padding: 32px;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s ease;
+      opacity: 0;
+      transform: translateY(24px);
+      animation: cardReveal 0.6s ease forwards;
+    }
+
+    .usp-card:nth-child(1) { animation-delay: 0.1s; }
+    .usp-card:nth-child(2) { animation-delay: 0.2s; }
+    .usp-card:nth-child(3) { animation-delay: 0.3s; }
+    .usp-card:nth-child(4) { animation-delay: 0.4s; }
+    .usp-card:nth-child(5) { animation-delay: 0.5s; }
+    .usp-card:nth-child(6) { animation-delay: 0.6s; }
+
+    @keyframes cardReveal {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .usp-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      border-radius: 20px 20px 0 0;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .usp-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 20px 48px rgba(79,70,229,0.12);
+      border-color: #c4b5fd;
+    }
+
+    .usp-card:hover::before { opacity: 1; }
+
+    /* Card accent colours */
+    .usp-card.c1::before { background: linear-gradient(90deg, #4f46e5, #7c3aed); }
+    .usp-card.c2::before { background: linear-gradient(90deg, #0ea5e9, #06b6d4); }
+    .usp-card.c3::before { background: linear-gradient(90deg, #10b981, #059669); }
+    .usp-card.c4::before { background: linear-gradient(90deg, #f59e0b, #ef4444); }
+    .usp-card.c5::before { background: linear-gradient(90deg, #ec4899, #f43f5e); }
+    .usp-card.c6::before { background: linear-gradient(90deg, #8b5cf6, #6d28d9); }
+
+    .usp-icon {
+      width: 52px; height: 52px;
+      border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 24px;
+      margin-bottom: 20px;
+      transition: transform 0.3s ease;
+    }
+
+    .usp-card:hover .usp-icon { transform: scale(1.1) rotate(-5deg); }
+
+    .usp-card.c1 .usp-icon { background: linear-gradient(135deg, #ede9fe, #ddd6fe); }
+    .usp-card.c2 .usp-icon { background: linear-gradient(135deg, #e0f2fe, #bae6fd); }
+    .usp-card.c3 .usp-icon { background: linear-gradient(135deg, #d1fae5, #a7f3d0); }
+    .usp-card.c4 .usp-icon { background: linear-gradient(135deg, #fef3c7, #fde68a); }
+    .usp-card.c5 .usp-icon { background: linear-gradient(135deg, #fce7f3, #fbcfe8); }
+    .usp-card.c6 .usp-icon { background: linear-gradient(135deg, #f3e8ff, #e9d5ff); }
+
+    .usp-title {
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 700;
+      font-size: 15px;
+      color: #1e1b4b;
+      margin-bottom: 10px;
+      letter-spacing: 0px;
+    }
+
+    .usp-desc {
+      font-size: 13.5px;
+      color: #6b7280;
+      line-height: 1.7;
+    }
+
+    /* ── HOW IT WORKS ── */
+    .how-section {
+      padding: 100px 20px;
+      background: white;
+    }
+
+    .steps-wrap {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 0;
+      max-width: 1000px;
+      margin: 0 auto;
+      position: relative;
+    }
+
+    .steps-wrap::before {
+      content: '';
+      position: absolute;
+      top: 32px; left: 10%; right: 10%;
+      height: 2px;
+      background: linear-gradient(90deg, #4f46e5, #7c3aed, #0ea5e9, #10b981);
+      z-index: 0;
+    }
+
+    .step {
+      text-align: center;
+      padding: 0 16px;
+      position: relative;
+      z-index: 1;
+      opacity: 0;
+      animation: fadeUp 0.6s ease forwards;
+    }
+
+    .step:nth-child(1) { animation-delay: 0.1s; }
+    .step:nth-child(2) { animation-delay: 0.25s; }
+    .step:nth-child(3) { animation-delay: 0.4s; }
+    .step:nth-child(4) { animation-delay: 0.55s; }
+
+    .step-circle {
+      width: 64px; height: 64px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px;
+      margin: 0 auto 20px;
+      border: 3px solid white;
+      box-shadow: 0 4px 20px rgba(79,70,229,0.2);
+    }
+
+    .step:nth-child(1) .step-circle { background: linear-gradient(135deg, #4f46e5, #7c3aed); }
+    .step:nth-child(2) .step-circle { background: linear-gradient(135deg, #0ea5e9, #06b6d4); }
+    .step:nth-child(3) .step-circle { background: linear-gradient(135deg, #10b981, #059669); }
+    .step:nth-child(4) .step-circle { background: linear-gradient(135deg, #f59e0b, #ef4444); }
+
+    .step-title {
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 700;
+      font-size: 14px;
+      color: #1e1b4b;
+      margin-bottom: 8px;
+      letter-spacing: 0px;
+    }
+
+    .step-desc {
+      font-size: 12.5px;
+      color: #6b7280;
+      line-height: 1.6;
+    }
+
+    /* ── FOOTER CTA ── */
+    .footer-cta {
+      background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+      padding: 100px 20px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .footer-cta::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 60% 60% at 30% 50%, rgba(79,70,229,0.2) 0%, transparent 60%),
+        radial-gradient(ellipse 40% 60% at 70% 50%, rgba(14,165,233,0.15) 0%, transparent 60%);
+    }
+
+    .footer-cta-content { position: relative; z-index: 1; }
+
+    .footer-cta h2 {
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 700;
+      font-size: clamp(1.4rem, 2.5vw, 2rem);
+      color: white;
+      letter-spacing: -0.2px;
+      margin-bottom: 16px;
+    }
+
+    .footer-cta p {
+      font-size: 15px;
+      color: rgba(255,255,255,0.55);
+      margin-bottom: 40px;
+      max-width: 480px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .footer-bottom {
+      background: #0a0820;
+      padding: 20px;
+      text-align: center;
+      font-size: 12px;
+      color: rgba(255,255,255,0.25);
+      letter-spacing: 0.3px;
+    }
+
+    /* ── Animations ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeDown {
+      from { opacity: 0; transform: translateY(-16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 640px) {
+      .stats-bar { gap: 28px; }
+      .steps-wrap::before { display: none; }
+      .usp-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════
+     HERO
+══════════════════════════════════════════ -->
+<section class="hero">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+  <div class="hero-grid"></div>
+
+  <div class="hero-content">
+
+    <div class="logo-badge">
+      <div class="logo-icon">⬡</div>
+      <span class="logo-text">ScripTradeX — Powered by ICEGATE Registry</span>
+    </div>
+
+    <h1 class="hero-title">
+      India's Centralised<br>
+      <span class="highlight">Scrip Exchange Platform</span>
+    </h1>
+
+    <p class="hero-sub">
+      The secure, verified exchange for RoDTEP &amp; ROSCTL duty credit scrips.<br>
+      Exporters unlock liquidity. Importers reduce customs duty costs.
+    </p>
+
+    <div class="hero-pills">
+      <span class="pill">🏛️ ICEGATE Verified</span>
+      <span class="pill">🔐 Escrow Protected</span>
+      <span class="pill">💰 1% Commission Only</span>
+      <span class="pill">⚡ Instant Matchmaking</span>
+      <span class="pill">🇮🇳 Made for India</span>
+    </div>
+
+    <div class="cta-wrap">
+      <a href="/auth/login" class="btn-cta btn-primary-cta">
+        Enter Platform →
+      </a>
+      <a href="#usps" class="btn-cta btn-ghost-cta">
+        Learn More ↓
+      </a>
+    </div>
+
+  </div>
+
+  <div class="scroll-hint">
+    <span>scroll</span>
+    <svg width="16" height="24" viewBox="0 0 16 24" fill="none">
+      <rect x="1" y="1" width="14" height="22" rx="7" stroke="currentColor" stroke-width="1.5"/>
+      <circle cx="8" cy="8" r="2.5" fill="currentColor">
+        <animate attributeName="cy" values="8;14;8" dur="2s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="1;0;1" dur="2s" repeatCount="indefinite"/>
+      </circle>
+    </svg>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════
+     STATS BAR
+══════════════════════════════════════════ -->
+<div class="stats-bar">
+  <div class="stat-item">
+    <div class="stat-num">₹500Cr+</div>
+    <div class="stat-label">Scrips Available</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num">16</div>
+    <div class="stat-label">Active Companies</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num">1%</div>
+    <div class="stat-label">Platform Fee Only</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num">100%</div>
+    <div class="stat-label">Escrow Protected</div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     USPs
+══════════════════════════════════════════ -->
+<section class="usp-section" id="usps">
+
+  <div class="section-label">Why ScripTradeX</div>
+  <h2 class="section-title">Everything you need to trade scrips safely</h2>
+  <p class="section-sub">
+    A purpose-built platform for India's EXIM ecosystem — bringing trust, speed,
+    and transparency to duty credit scrip trading.
+  </p>
+
+  <div class="usp-grid">
+
+    <div class="usp-card c1">
+      <div class="usp-icon">🏛️</div>
+      <div class="usp-title">Government Registry Verified</div>
+      <div class="usp-desc">
+        Every scrip is verified against the ICEGATE government registry before listing.
+        No fake or expired scrips can enter the marketplace.
+      </div>
+    </div>
+
+    <div class="usp-card c2">
+      <div class="usp-icon">⚡</div>
+      <div class="usp-title">Instant Matchmaking Engine</div>
+      <div class="usp-desc">
+        Buyers set their requirements — scrip type, value range, expiry — and our engine
+        instantly surfaces the best matched listings ranked by discount.
+      </div>
+    </div>
+
+    <div class="usp-card c3">
+      <div class="usp-icon">🔐</div>
+      <div class="usp-title">Escrow-Protected Transactions</div>
+      <div class="usp-desc">
+        Funds are held in escrow until both parties confirm the transfer. Neither seller
+        nor buyer can be defrauded at any stage of the deal.
+      </div>
+    </div>
+
+    <div class="usp-card c4">
+      <div class="usp-icon">💰</div>
+      <div class="usp-title">Just 1% Platform Commission</div>
+      <div class="usp-desc">
+        We charge only 1% on settled transactions — far below traditional brokers.
+        Sellers keep more, buyers save more, platform earns transparently.
+      </div>
+    </div>
+
+    <div class="usp-card c5">
+      <div class="usp-icon">🤝</div>
+      <div class="usp-title">Deal Activity Transparency</div>
+      <div class="usp-desc">
+        Every enquiry, confirmation, payment, and settlement is tracked in real time
+        on both seller and buyer dashboards. No phone calls, no ambiguity.
+      </div>
+    </div>
+
+    <div class="usp-card c6">
+      <div class="usp-icon">🛡️</div>
+      <div class="usp-title">6-Layer Security</div>
+      <div class="usp-desc">
+        Rate limiting, IP blacklisting, input sanitization, role enforcement,
+        admin protection, and full request logging — enterprise-grade security.
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════
+     HOW IT WORKS
+══════════════════════════════════════════ -->
+<section class="how-section">
+
+  <div class="section-label">The Process</div>
+  <h2 class="section-title" style="margin-bottom:16px;">How it works</h2>
+  <p class="section-sub">Four simple steps from listing to settlement</p>
+
+  <div class="steps-wrap">
+
+    <div class="step">
+      <div class="step-circle">📋</div>
+      <div class="step-title">Seller Lists Scrip</div>
+      <div class="step-desc">
+        Exporter verifies scrip via ICEGATE and lists it at a discounted ask price
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-circle">🔍</div>
+      <div class="step-title">Buyer Matches & Locks</div>
+      <div class="step-desc">
+        Importer places demand, system matches best scrips, buyer locks the deal
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-circle">💳</div>
+      <div class="step-title">Payment in Escrow</div>
+      <div class="step-desc">
+        Buyer pays via Card / UPI / Net Banking — funds held securely in escrow
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-circle">✅</div>
+      <div class="step-title">Seller Settles</div>
+      <div class="step-desc">
+        Seller confirms transfer, scrip ownership moves to buyer, payout released
+      </div>
+    </div>
+
+  </div>
+
+</section>
+
+<!-- ══════════════════════════════════════════
+     FOOTER CTA
+══════════════════════════════════════════ -->
+<section class="footer-cta">
+  <div class="footer-cta-content">
+    <h2>Ready to trade smarter?</h2>
+    <p>
+      Join India's most transparent duty credit scrip marketplace.
+      No brokers, no calls, no spreadsheets.
+    </p>
+    <a href="/auth/login" class="btn-cta btn-primary-cta" style="font-size:16px;padding:16px 40px;">
+      Enter ScripTradeX →
+    </a>
+  </div>
+</section>
+
+<div class="footer-bottom">
+  © 2025 ScripTradeX · Built for India's EXIM Ecosystem · All transactions escrow-protected
+</div>
+
+</body>
+</html>
